@@ -1,4 +1,9 @@
 import {
+  canCallOpenAi,
+  openAiPostJson,
+  readEnv,
+} from '../openai/config.ts'
+import {
   zSearchCriteriaInput,
   zSearchCriteriaResult,
   type Criterion,
@@ -18,6 +23,7 @@ export type SearchCriteriaOptions = {
 }
 
 const DEFAULT_MAX_RESULTS = 5
+const RESPONSES_PATH = '/v1/responses'
 
 export async function searchCriteria(
   input: SearchCriteriaInput,
@@ -45,19 +51,13 @@ export async function openAiWebSearchProvider(
   query: string,
   options: { maxResults: number },
 ): Promise<Source[]> {
-  const apiKey = readEnv('LLM_API_KEY')
-
-  if (!apiKey) {
+  if (!canCallOpenAi()) {
     return []
   }
 
-  const response = await fetch(readEnv('OPENAI_RESPONSES_API_BASE') ?? 'https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+  const response = await openAiPostJson(
+    RESPONSES_PATH,
+    {
       model: readEnv('OPENAI_WEB_SEARCH_MODEL') ?? 'gpt-4.1-mini',
       tools: [{ type: 'web_search', search_context_size: 'low' }],
       tool_choice: 'required',
@@ -68,8 +68,9 @@ export async function openAiWebSearchProvider(
         'Return concise factual requirements and cite every factual claim with source URLs.',
         `Target query: ${query}`,
       ].join('\n'),
-    }),
-  })
+    },
+    { baseUrl: readEnv('OPENAI_RESPONSES_API_BASE') },
+  )
 
   if (!response.ok) {
     return []
@@ -287,17 +288,6 @@ function inferCriterionName(text: string): string {
   }
 
   return 'Admission criteria'
-}
-
-function readEnv(name: string): string | undefined {
-  const importMetaEnv = (import.meta as ImportMeta & {
-    env?: Record<string, string | undefined>
-  }).env
-  const globalProcess = (globalThis as unknown as {
-    process?: { env?: Record<string, string | undefined> }
-  }).process
-
-  return importMetaEnv?.[name] ?? globalProcess?.env?.[name]
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

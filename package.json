@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "test:lib": "node --experimental-strip-types --test tests/lib/llm-client.test.ts tests/lib/search-criteria.test.ts tests/lib/actions-flow.test.ts tests/lib/load.test.ts",
+    "test:lib": "node --experimental-strip-types --test tests/lib/llm-client.test.ts tests/lib/search-criteria.test.ts tests/lib/actions-flow.test.ts tests/lib/language.test.ts tests/lib/load.test.ts",
     "test:load": "node --experimental-strip-types --test tests/lib/load.test.ts",
     "test:api": "node --experimental-strip-types --test tests/lib/live-api.test.ts",
     "test:db": "node --experimental-strip-types --test tests/lib/supabase-db.test.ts",

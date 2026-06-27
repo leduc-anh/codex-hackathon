@@ -36,3 +36,9 @@ export const MINH_DEMO_INTAKE_LINES = [
   'mình học chuyên Lý, có giải nhì HSG tỉnh. mình làm 1 cái mạch cảm biến đo độ ẩm đất cho vườn rau của bà mình. tiếng anh mình hơi yếu phần viết.',
   'ok. mình cũng tham gia CLB robotics 2 năm, làm trưởng nhóm lập trình.',
 ] as const
+
+export function minhSeedUserMessage(language: 'vi' | 'en'): string {
+  return language === 'vi'
+    ? MINH_DEMO_INTAKE_LINES.join(' ')
+    : 'I am a Grade 12 physics student. I won second prize in the provincial physics competition, built a soil-moisture sensor for my grandmother’s garden, and led programming in the robotics club for two years. I want to study engineering in the United States.'
+}
