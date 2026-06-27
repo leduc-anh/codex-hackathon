@@ -151,34 +151,34 @@
     "turns": [
       {
         "targetSentence": "I have always been passionate about engineering.",
-        "promptLabel": { "vi": "Làm rõ câu này", "en": "Clarify this line" },
+        "promptLabel": { "vi": "Tư duy phản biện", "en": "Critical thinking" },
         "question": {
-          "vi": "“Đam mê” là một ý tốt, nhưng còn khá chung. Có khoảnh khắc nào khiến kỹ thuật không chỉ là môn học, mà thành điều bạn thật sự muốn theo đuổi?",
-          "en": "'Passionate' is a good start, but it is still broad. When did engineering stop being just a subject and become something you wanted to pursue?"
+          "vi": "Một hội đồng học bổng nghe chữ “đam mê” mỗi ngày. Cô không bắt bẻ em, cô muốn em đáng nhớ hơn họ. Kể cô một khoảnh khắc cụ thể: lúc nào kỹ thuật thôi là môn học và thành thứ em phải theo đuổi? Hôm đó em đang làm gì?",
+          "en": "A scholarship panel hears the word 'passion' every day. I am not nitpicking; I want you to be more memorable than them. Tell me one concrete moment: when did engineering stop being a subject and become something you had to pursue? What were you doing that day?"
         }
       },
       {
         "targetSentence": "I built a sensor to measure soil moisture.",
-        "promptLabel": { "vi": "Đào sâu", "en": "Dig in" },
+        "promptLabel": { "vi": "Tư duy sáng lập", "en": "Founder lens" },
         "question": {
-          "vi": "Bạn làm mạch đó cho ai? Điều gì trong ngày hôm đó khiến nó quan trọng hơn một bài tập kỹ thuật?",
-          "en": "Who was the sensor for? What made that day matter beyond a technical assignment?"
+          "vi": "Tốt, có một việc thật rồi. Giờ nghĩ như một người sáng lập: em làm cảm biến đó cho ai, để gỡ vấn đề gì của họ? Đừng kể em làm thế nào, kể điều gì đã khác đi sau khi có nó.",
+          "en": "Good, a real thing. Now think like a founder: who did you build that sensor for, and what problem of theirs did it solve? Do not tell me how you built it; tell me what changed because it existed."
         }
       },
       {
         "targetSentence": "I am hardworking and dedicated.",
-        "promptLabel": { "vi": "Cụ thể hóa", "en": "Make it concrete" },
+        "promptLabel": { "vi": "Bằng chứng", "en": "Show evidence" },
         "question": {
-          "vi": "“Chăm chỉ” sẽ thuyết phục hơn nếu có hành động cụ thể. Kể một lần bạn phải cố hơn bình thường để hoàn thành việc mình đã nhận.",
-          "en": "'Hardworking' is stronger when it is shown through action. Tell me about one time you had to push past what was comfortable to finish something you had committed to."
+          "vi": "“Chăm chỉ” là từ ai cũng dùng, nên nó gần như vô hình. Cô cần một lần cụ thể: em đã ở lại với việc gì khi đáng lẽ bỏ được, và cái giá em trả là gì? Một chuyện thật mạnh hơn mười tính từ.",
+          "en": "'Hardworking' is a word everyone uses, so it is almost invisible. I need one concrete time: what did you stay with when you could have walked away, and what did it cost you? One true story beats ten adjectives."
         }
       },
       {
         "targetSentence": "I want to study at your university to achieve my dreams.",
-        "promptLabel": { "vi": "Cụ thể hơn", "en": "Get specific" },
+        "promptLabel": { "vi": "Tập phỏng vấn", "en": "Interview drill" },
         "question": {
-          "vi": "Ước mơ đó cụ thể là gì? Và Berkeley sẽ giúp bạn tiến gần hơn tới nó theo cách nào?",
-          "en": "What is that dream, specifically? And how would Berkeley help you move toward it?"
+          "vi": "Trong phỏng vấn thật, câu này bị hỏi ngược ngay. Trả lời cô như đang ngồi trước hội đồng: “ước mơ” đó cụ thể là gì, và vì sao đúng Berkeley chứ không phải một nơi rẻ hơn gần nhà? Cô đứng về phía em, nên mình tập cho câu trả lời thật chắc.",
+          "en": "In a real interview this line gets turned right back on you. Answer me as if you were facing the panel: what is that dream, specifically, and why Berkeley rather than somewhere cheaper closer to home? I am on your side, so let us make this answer solid."
         }
       }
     ],
