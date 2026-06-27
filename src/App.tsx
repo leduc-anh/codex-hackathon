@@ -1,7 +1,6 @@
 import { Suspense, lazy, useEffect, useReducer } from 'react'
 import copy from '../docs/page-content.json'
 import {
-  canJumpToScreen,
   generateRewrite,
   nextInterrogationTurn,
   readIntakeFile,
@@ -289,9 +288,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'jump':
-      if (!canJumpToScreen(action.screen, state.agentState)) {
-        return { ...state, error: t(content.states.insufficientData, state.lang) }
-      }
       return { ...state, screen: action.screen, error: '' }
     case 'back':
       return { ...state, screen: Math.max(0, state.screen - 1) as Screen, error: '' }
@@ -775,7 +771,6 @@ function IntakeScreen({
         </div>
         <ProfileCard
           cta={() => dispatch({ type: 'jump', screen: 1 })}
-          fit={state.fit}
           lang={lang}
           profile={profile}
         />
@@ -786,12 +781,10 @@ function IntakeScreen({
 
 function ProfileCard({
   profile,
-  fit,
   cta,
   lang,
 }: {
   profile: Profile
-  fit: ScoreFitResult | null
   cta: () => void
   lang: Lang
 }) {
@@ -822,7 +815,7 @@ function ProfileCard({
           </div>
         ))}
       </div>
-      <Button disabled={!fit} onClick={cta}>
+      <Button onClick={cta}>
         {t(card.cta, lang)}
       </Button>
     </Card>
@@ -887,7 +880,7 @@ function ShortlistScreen({
         <div className="state-note">{t(content.states.empty.intake, lang)}</div>
       )}
       <div className="footer-action">
-        <Button disabled={!fit} onClick={() => dispatch({ type: 'jump', screen: 2 })}>
+        <Button onClick={() => dispatch({ type: 'jump', screen: 2 })}>
           {t(shortlist.cta, lang)}
         </Button>
       </div>
