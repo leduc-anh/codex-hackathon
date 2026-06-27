@@ -769,12 +769,17 @@
 }
 
 .avatar-panel {
-  position: sticky;
-  top: 104px;
+  position: relative;
   display: grid;
   justify-items: center;
   gap: 10px;
+  margin-bottom: 18px;
   text-align: center;
+}
+
+.interrogation-grid > div:first-child > .button {
+  width: 100%;
+  margin-top: 54px;
 }
 
 .avatar-wrap {
@@ -783,6 +788,7 @@
   height: 156px;
   display: grid;
   place-items: center;
+  pointer-events: none;
 }
 
 .avatar-face {
