@@ -21,6 +21,7 @@ import type {
   SearchCriteriaResult,
   ScoreFitResult,
 } from './lib/contracts.ts'
+import { detectUserLanguage } from './lib/language.ts'
 import { createInitialAgentState, updateAgentState } from './lib/memory/state.ts'
 import './App.css'
 
@@ -592,6 +593,16 @@ function IntakeScreen({
               onChange={(event) =>
                 dispatch({ type: 'setIntakeInput', value: event.currentTarget.value })
               }
+              onKeyDown={(event) => {
+                if (
+                  event.key === 'Enter' &&
+                  !event.shiftKey &&
+                  !event.nativeEvent.isComposing
+                ) {
+                  event.preventDefault()
+                  event.currentTarget.form?.requestSubmit()
+                }
+              }}
               placeholder={t(content.scr01_intake.inputPlaceholder, lang)}
               value={state.intakeInput}
             />
@@ -1154,8 +1165,17 @@ function App() {
       return
     }
 
+    const detectedLanguage = detectUserLanguage(message, state.lang)
+    if (detectedLanguage !== state.lang) {
+      dispatch({ type: 'setLang', lang: detectedLanguage })
+    }
+
     dispatch({ type: 'startIntake', message })
-    const result = await runIntakeStep({ state: state.agentState, userMessage: message })
+    const result = await runIntakeStep({
+      state: state.agentState,
+      userMessage: message,
+      preferredLanguage: detectedLanguage,
+    })
 
     if (!result.ok) {
       dispatch({ type: 'error', message: result.error })
