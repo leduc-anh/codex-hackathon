@@ -4,8 +4,12 @@ import {
   canJumpToScreen,
   generateRewrite,
   nextInterrogationTurn,
+  readIntakeFile,
+  runFileIntakeStep,
   runIntakeStep,
+  runMockDemoIntake,
   scaffoldDraft,
+  type FileIntakeResult,
   type IntakeResult,
 } from './lib/actions.ts'
 import type {
@@ -30,6 +34,7 @@ type Message = {
   label?: string
   text: string
   sources?: string[]
+  tone?: 'warning' | 'success'
 }
 
 type State = {
@@ -56,6 +61,10 @@ type Action =
   | { type: 'setIntakeInput'; value: string }
   | { type: 'startIntake'; message: string }
   | { type: 'finishIntake'; result: IntakeResult }
+  | { type: 'startFileIntake'; fileName: string }
+  | { type: 'finishFileIntake'; result: FileIntakeResult }
+  | { type: 'startMockIntake' }
+  | { type: 'finishMockIntake'; result: IntakeResult }
   | { type: 'setDraftText'; value: string }
   | { type: 'startDraft' }
   | { type: 'finishDraft'; draft: Draft }
@@ -81,6 +90,15 @@ function seedMessage(lang: Lang): Message {
   const text =
     typeof seed.text === 'string' ? seed.text : t(seed.text as Bilingual, lang)
   return { role: seed.role as Message['role'], label: seed.label, text }
+}
+
+function mockDemoMessages(lang: Lang): Message[] {
+  return content.scr01_intake.messages.map((entry) => ({
+    role: entry.role as Message['role'],
+    label: entry.label,
+    text: typeof entry.text === 'string' ? entry.text : t(entry.text as Bilingual, lang),
+    sources: entry.sources,
+  }))
 }
 
 const initialState: State = {
@@ -141,6 +159,60 @@ function reducer(state: State, action: Action): State {
         ],
       }
     }
+    case 'startFileIntake':
+      return {
+        ...state,
+        busy: 'intake',
+        error: '',
+        messages: [...state.messages, { role: 'user', text: `📎 ${action.fileName}` }],
+      }
+    case 'finishFileIntake': {
+      const { result } = action
+      const prefix =
+        result.status === 'out_of_scope'
+          ? t(content.scr01_intake.upload.outOfScopePrefix, state.lang)
+          : t(content.scr01_intake.upload.validPrefix, state.lang)
+      const agentMessage = {
+        role: 'agent' as const,
+        label: 'SoPilot',
+        text: `${prefix}: ${result.userFacing ?? ''}`,
+        tone: (result.status === 'out_of_scope' ? 'warning' : 'success') as 'warning' | 'success',
+        sources:
+          result.status === 'valid'
+            ? result.search.sources.map((source) => source.url)
+            : undefined,
+      }
+
+      if (result.status === 'out_of_scope') {
+        return {
+          ...state,
+          busy: 'idle',
+          messages: [...state.messages, agentMessage],
+        }
+      }
+
+      return {
+        ...state,
+        busy: 'idle',
+        agentState: result.state,
+        search: result.search,
+        fit: result.fit,
+        messages: [...state.messages, agentMessage],
+      }
+    }
+    case 'startMockIntake':
+      return { ...state, busy: 'intake', error: '' }
+    case 'finishMockIntake': {
+      const { result } = action
+      return {
+        ...state,
+        busy: 'idle',
+        agentState: result.state,
+        search: result.search,
+        fit: result.fit,
+        messages: mockDemoMessages(state.lang),
+      }
+    }
     case 'setDraftText':
       return { ...state, draftText: action.value, error: '' }
     case 'startDraft':
@@ -180,10 +252,15 @@ function reducer(state: State, action: Action): State {
     case 'toggleTts':
       return { ...state, ttsOn: !state.ttsOn }
     case 'setLang': {
-      const seed = seedMessage(action.lang)
-      const messages =
+      const isSeedOnly =
         state.messages.length === 1 && state.messages[0]?.role === 'agent'
-          ? [seed]
+      const isMockDemo =
+        state.messages.length === content.scr01_intake.messages.length &&
+        state.fit !== null
+      const messages = isMockDemo
+        ? mockDemoMessages(action.lang)
+        : isSeedOnly
+          ? [seedMessage(action.lang)]
           : state.messages
       return { ...state, lang: action.lang, messages }
     }
@@ -279,25 +356,6 @@ function shortSource(value: string) {
   }
 }
 
-function FitBand({ band }: { band: ScoreFitResult['band'] }) {
-  const label =
-    band === 'strong_match'
-      ? { vi: 'PHÙ HỢP TỐT', en: 'STRONG MATCH' }
-      : band === 'competitive'
-        ? { vi: 'CẠNH TRANH', en: 'COMPETITIVE' }
-        : band === 'reach'
-          ? { vi: 'THÁCH THỨC', en: 'REACH' }
-          : { vi: 'CHƯA ĐỦ DỮ LIỆU', en: 'INSUFFICIENT' }
-  const key = band === 'strong_match' ? 'strongMatch' : band
-
-  return (
-    <span className={`fit-band fit-${key}`}>
-      <span />
-      {label.vi} · {label.en}
-    </span>
-  )
-}
-
 function CriteriaRow({ met, text }: { met: boolean; text: string }) {
   return (
     <div className="criteria-row">
@@ -307,9 +365,9 @@ function CriteriaRow({ met, text }: { met: boolean; text: string }) {
   )
 }
 
-function TypingDots() {
+function TypingDots({ lang }: { lang: Lang }) {
   return (
-    <span className="typing-dots" aria-label={bilingual(content.states.loading)}>
+    <span className="typing-dots" aria-label={t(content.states.loading, lang)}>
       <span />
       <span />
       <span />
@@ -317,9 +375,17 @@ function TypingDots() {
   )
 }
 
-function Stepper({ screen, dispatch }: { screen: Screen; dispatch: React.Dispatch<Action> }) {
+function Stepper({
+  screen,
+  dispatch,
+  lang,
+}: {
+  screen: Screen
+  dispatch: React.Dispatch<Action>
+  lang: Lang
+}) {
   return (
-    <div className="stepper" aria-label="Hành trình">
+    <div className="stepper" aria-label={lang === 'vi' ? 'Hành trình' : 'Journey'}>
       <div className="stepper-track">
         <span className="stepper-fill" style={{ width: `${(screen / 4) * 88}%` }} />
       </div>
@@ -334,8 +400,7 @@ function Stepper({ screen, dispatch }: { screen: Screen; dispatch: React.Dispatc
           >
             <span className="step-node">{state === 'done' ? '✓' : step.n}</span>
             <span className="step-labels">
-              <span>{step.label.vi}</span>
-              <span>{step.label.en}</span>
+              <span>{t(step.label, lang)}</span>
             </span>
           </button>
         )
@@ -361,12 +426,17 @@ function Shell({
             <span className="brand-mark">S</span>
             <span>{content.global.brand}</span>
           </div>
-          <Stepper dispatch={dispatch} screen={state.screen} />
+          <Stepper dispatch={dispatch} lang={state.lang} screen={state.screen} />
           <div className="lang-toggle" aria-label="Language">
-            {content.global.langToggle.map((lang, index) => (
-              <span className={index === 0 ? 'active' : ''} key={lang}>
-                {lang}
-              </span>
+            {(['vi', 'en'] as const).map((code, index) => (
+              <button
+                className={state.lang === code ? 'active' : ''}
+                key={code}
+                onClick={() => dispatch({ type: 'setLang', lang: code })}
+                type="button"
+              >
+                {content.global.langToggle[index]}
+              </button>
             ))}
           </div>
         </div>
@@ -374,7 +444,7 @@ function Shell({
       <div className="back-row">
         {state.screen > 0 && (
           <button className="back-button" onClick={() => dispatch({ type: 'back' })} type="button">
-            ← {content.global.back.vi} <span>· {content.global.back.en}</span>
+            ← {t(content.global.back, state.lang)}
           </button>
         )}
       </div>
@@ -396,9 +466,12 @@ function Shell({
 }
 
 function MessageBubble({ message }: { message: Message }) {
+  const toneClass =
+    message.tone === 'warning' ? ' tone-warning' : message.tone === 'success' ? ' tone-success' : ''
+
   return (
     <div className={`message-row ${message.role}`}>
-      <div className={`message-bubble ${message.role}`}>
+      <div className={`message-bubble ${message.role}${toneClass}`}>
         {message.label && <div className="bubble-label">{message.label}</div>}
         <p>{message.text}</p>
         {message.sources && message.sources.length > 0 && (
@@ -416,19 +489,62 @@ function MessageBubble({ message }: { message: Message }) {
 function IntakeScreen({
   state,
   onSubmit,
+  onFileSelect,
+  onMockProfile,
   dispatch,
 }: {
   state: State
   onSubmit: () => void
+  onFileSelect: (file: File) => void
+  onMockProfile: () => void
   dispatch: React.Dispatch<Action>
 }) {
   const profile = state.agentState.profile
+  const lang = state.lang
+  const upload = content.scr01_intake.upload
 
   return (
     <div>
-      <ScreenIntro title={content.scr01_intake.title} subtitle={content.scr01_intake.subtitle} />
+      <ScreenIntro
+        lang={lang}
+        subtitle={content.scr01_intake.subtitle}
+        title={content.scr01_intake.title}
+      />
       <div className="intake-grid">
-        <Card className="chat-card">
+        <div className="intake-main">
+          <Card className="upload-card">
+            <div className="upload-head">
+              <div>
+                <h3>{t(upload.title, lang)}</h3>
+                <p>{t(upload.subtitle, lang)}</p>
+              </div>
+              <Button disabled={state.busy !== 'idle'} onClick={onMockProfile} variant="secondary">
+                {t(content.scr01_intake.mockProfileButton, lang)}
+              </Button>
+            </div>
+            <label className="upload-dropzone">
+              <input
+                accept=".txt,.md,.csv,.json,.png,.jpg,.jpeg,.webp,.gif"
+                disabled={state.busy !== 'idle'}
+                hidden
+                onChange={(event) => {
+                  const file = event.currentTarget.files?.[0]
+                  if (file) {
+                    onFileSelect(file)
+                  }
+                  event.currentTarget.value = ''
+                }}
+                type="file"
+              />
+              <span className="upload-icon">↑</span>
+              <span className="upload-title">{t(upload.dropHint, lang)}</span>
+              <span className="upload-meta">{t(upload.acceptLabel, lang)}</span>
+              {state.busy === 'intake' && (
+                <span className="upload-status">{t(upload.analyzing, lang)}</span>
+              )}
+            </label>
+          </Card>
+          <Card className="chat-card">
           <div className="chat-scroll">
             {state.messages.map((message, index) => (
               <MessageBubble key={`${message.role}-${index}-${message.text}`} message={message} />
@@ -437,7 +553,7 @@ function IntakeScreen({
               <div className="message-row agent">
                 <div className="message-bubble agent">
                   <div className="bubble-label">SoPilot</div>
-                  <TypingDots />
+                  <TypingDots lang={lang} />
                 </div>
               </div>
             )}
@@ -453,7 +569,7 @@ function IntakeScreen({
               onChange={(event) =>
                 dispatch({ type: 'setIntakeInput', value: event.currentTarget.value })
               }
-              placeholder={content.scr01_intake.inputPlaceholder.vi}
+              placeholder={t(content.scr01_intake.inputPlaceholder, lang)}
               value={state.intakeInput}
             />
             <button aria-label="Send" className="send-button" disabled={state.busy !== 'idle'} type="submit">
@@ -461,9 +577,11 @@ function IntakeScreen({
             </button>
           </form>
         </Card>
+        </div>
         <ProfileCard
           cta={() => dispatch({ type: 'jump', screen: 1 })}
           fit={state.fit}
+          lang={lang}
           profile={profile}
         />
       </div>
@@ -475,21 +593,26 @@ function ProfileCard({
   profile,
   fit,
   cta,
+  lang,
 }: {
   profile: Profile
   fit: ScoreFitResult | null
   cta: () => void
+  lang: Lang
 }) {
-  const facts = profileFacts(profile)
+  const card = content.scr01_intake.profileCard
+  const facts = profileFacts(profile, lang)
 
   return (
     <Card dark className="profile-card">
       <div className="profile-head">
-        <span>Hồ sơ thật</span>
-        <span>{facts.length} mục</span>
+        <span>{t(card.liveHeading, lang)}</span>
+        <span>
+          {facts.length} {t(card.itemsLabel, lang)}
+        </span>
       </div>
-      <h2>{profile.targetProgram ?? 'Chưa chọn ngành'}</h2>
-      <p>{profile.education ?? 'Thông tin học tập sẽ hiện ở đây sau intake.'}</p>
+      <h2>{profile.targetProgram ?? t(card.noProgram, lang)}</h2>
+      <p>{profile.education ?? t(card.educationPending, lang)}</p>
       <div className="dark-divider" />
       <div className="facts-list">
         {facts.map((fact) => (
@@ -505,7 +628,7 @@ function ProfileCard({
         ))}
       </div>
       <Button disabled={!fit} onClick={cta}>
-        {bilingual(content.scr01_intake.profileCard.cta)}
+        {t(card.cta, lang)}
       </Button>
     </Card>
   )
@@ -520,22 +643,26 @@ function ShortlistScreen({
 }) {
   const profile = state.agentState.profile
   const fit = state.fit
+  const lang = state.lang
+  const shortlist = content.scr02_shortlist
 
   return (
     <div>
-      <ScreenIntro title={content.scr02_shortlist.title} subtitle={content.scr02_shortlist.subtitle} />
+      <ScreenIntro lang={lang} subtitle={shortlist.subtitle} title={shortlist.title} />
       {!state.search?.found && (
-        <div className="state-note subtle-state">{bilingual(content.states.degraded.search)}</div>
+        <div className="state-note subtle-state">{t(content.states.degraded.search, lang)}</div>
       )}
       {fit ? (
         <div className="target-stack">
           <Card className="target-card">
             <div className="target-head">
               <div>
-                <h2>{profile.targetProgram ?? 'Target program'}</h2>
-                <p>{profile.level} · {profile.targetCountry || 'Target country pending'}</p>
+                <h2>{profile.targetProgram ?? t(shortlist.targetProgramFallback, lang)}</h2>
+                <p>
+                  {profile.level} · {profile.targetCountry || t(shortlist.targetCountryPending, lang)}
+                </p>
               </div>
-              <FitBand band={fit.band} />
+              <FitBand band={fit.band} lang={lang} />
             </div>
             <div className="criteria-grid">
               {fit.checks.map((check) => (
@@ -547,26 +674,26 @@ function ShortlistScreen({
               ))}
             </div>
             <div className="gap-callout">
-              <span>{bilingual(content.scr02_shortlist.gapLabel)}</span>
-              <p>{fit.gaps.at(0) ?? 'No critical gap found from sourced criteria.'}</p>
+              <span>{t(shortlist.gapLabel, lang)}</span>
+              <p>{fit.gaps.at(0) ?? t(shortlist.noGap, lang)}</p>
             </div>
             <div className="chip-row">
               {state.search?.sources.map((source) => (
                 <SourceChip
                   key={source.url}
                   label={source.url}
-                  prefix={content.scr02_shortlist.sourcePrefix.vi}
+                  prefix={t(shortlist.sourcePrefix, lang)}
                 />
               ))}
             </div>
           </Card>
         </div>
       ) : (
-        <div className="state-note">{bilingual(content.states.empty.intake)}</div>
+        <div className="state-note">{t(content.states.empty.intake, lang)}</div>
       )}
       <div className="footer-action">
         <Button disabled={!fit} onClick={() => dispatch({ type: 'jump', screen: 2 })}>
-          {bilingual(content.scr02_shortlist.cta)}
+          {t(shortlist.cta, lang)}
         </Button>
       </div>
     </div>
@@ -584,35 +711,41 @@ function DraftScreen({
   onStart: () => void
   dispatch: React.Dispatch<Action>
 }) {
+  const lang = state.lang
+  const draftCopy = content.scr03_draft
+
   return (
     <div>
       <div className="draft-head">
-        <ScreenIntro title={content.scr03_draft.title} subtitle={content.scr03_draft.subtitle} />
+        <ScreenIntro lang={lang} subtitle={draftCopy.subtitle} title={draftCopy.title} />
         <div className="writing-chip">
-          <span>{bilingual(content.scr03_draft.writingForLabel)}</span>
-          <strong>{state.agentState.profile.targetProgram ?? content.scr03_draft.writingForValue}</strong>
+          <span>{t(draftCopy.writingForLabel, lang)}</span>
+          <strong>{state.agentState.profile.targetProgram ?? draftCopy.writingForValue}</strong>
         </div>
       </div>
       <Card className="editor-card">
         <div className="editor-toolbar">
-          <span>{bilingual(content.scr03_draft.editorLabel)}</span>
+          <span>{t(draftCopy.editorLabel, lang)}</span>
           <Button disabled={state.busy !== 'idle'} onClick={onScaffold} variant="secondary">
-            ✦ {state.busy === 'draft' ? bilingual(content.states.loading) : bilingual(content.scr03_draft.draftItButton)}
+            ✦{' '}
+            {state.busy === 'draft'
+              ? t(content.states.loading, lang)
+              : t(draftCopy.draftItButton, lang)}
           </Button>
         </div>
         <textarea
           className="draft-editor"
           onChange={(event) => dispatch({ type: 'setDraftText', value: event.currentTarget.value })}
-          placeholder={content.scr03_draft.editorPlaceholder.vi}
+          placeholder={t(draftCopy.editorPlaceholder, lang)}
           value={state.draftText}
         />
         <div className="editor-footer">
           <span>
-            {wordCount(state.draftText)} {bilingual(content.scr03_draft.wordCountLabel)}
-            {state.busy === 'draft' && <TypingDots />}
+            {wordCount(state.draftText)} {t(draftCopy.wordCountLabel, lang)}
+            {state.busy === 'draft' && <TypingDots lang={lang} />}
           </span>
           <Button disabled={!state.draftText.trim() || state.busy !== 'idle'} onClick={onStart}>
-            {bilingual(content.scr03_draft.cta)}
+            {t(draftCopy.cta, lang)}
           </Button>
         </div>
       </Card>
@@ -621,6 +754,7 @@ function DraftScreen({
 }
 
 function Avatar({ state, complete }: { state: State; complete: boolean }) {
+  const lang = state.lang
   const speaking = state.ttsOn && !complete
   const status = speaking
     ? content.scr04_interrogation.status.speaking
@@ -648,10 +782,10 @@ function Avatar({ state, complete }: { state: State; complete: boolean }) {
         </div>
       </div>
       <h2>{content.scr04_interrogation.avatar.name}</h2>
-      <p>{bilingual(content.scr04_interrogation.avatar.role)}</p>
+      <p>{t(content.scr04_interrogation.avatar.role, lang)}</p>
       <span className={`status-pill ${speaking ? 'voice' : 'waiting'}`}>
         <span />
-        {bilingual(status)}
+        {t(status, lang)}
       </span>
     </div>
   )
@@ -697,14 +831,16 @@ function InterrogationScreen({
 }) {
   const session = state.session
   const draft = state.draft
+  const lang = state.lang
+  const interrogation = content.scr04_interrogation
   const turn = session?.turns.find((item) => !item.answer) ?? session?.turns.at(-1)
   const complete = Boolean(session && session.turns.every((item) => item.answer))
 
   if (!session || !draft || !turn) {
     return (
       <div className="generating-stage">
-        <TypingDots />
-        <h1>{bilingual(content.states.loading)}</h1>
+        <TypingDots lang={lang} />
+        <h1>{t(content.states.loading, lang)}</h1>
       </div>
     )
   }
@@ -715,29 +851,29 @@ function InterrogationScreen({
         <Avatar complete={complete} state={state} />
         <Button onClick={() => dispatch({ type: 'toggleTts' })} variant="secondary">
           {state.ttsOn
-            ? content.scr04_interrogation.ttsToggle.on
-            : content.scr04_interrogation.ttsToggle.off}
+            ? t(interrogation.ttsToggle.on, lang)
+            : t(interrogation.ttsToggle.off, lang)}
         </Button>
         {!state.ttsOn && (
           <div className="state-note voice-note">
-            {bilingual(content.scr04_interrogation.degradedNote)}
+            {t(interrogation.degradedNote, lang)}
           </div>
         )}
       </div>
       {complete ? (
         <Card className="complete-card">
-          <span className="eyebrow">{bilingual(content.scr04_interrogation.complete.eyebrow)}</span>
-          <h1>{bilingual(content.scr04_interrogation.complete.title)}</h1>
-          <p>{bilingual(content.scr04_interrogation.complete.body)}</p>
+          <span className="eyebrow">{t(interrogation.complete.eyebrow, lang)}</span>
+          <h1>{t(interrogation.complete.title, lang)}</h1>
+          <p>{t(interrogation.complete.body, lang)}</p>
           <Button disabled={state.busy !== 'idle'} onClick={onRewrite}>
-            {bilingual(content.scr04_interrogation.complete.cta)}
+            {t(interrogation.complete.cta, lang)}
           </Button>
         </Card>
       ) : (
         <div className="interrogate-work">
           <div className="turn-row">
             <span>
-              {bilingual(content.scr04_interrogation.turnLabel)} {turn.index + 1} / 4
+              {t(interrogation.turnLabel, lang)} {turn.index + 1} / 4
             </span>
             <ProgressPips session={session} />
           </div>
@@ -751,15 +887,15 @@ function InterrogationScreen({
               onChange={(event) =>
                 dispatch({ type: 'setAnswerInput', value: event.currentTarget.value })
               }
-              placeholder={content.scr04_interrogation.answerPlaceholder.vi}
+              placeholder={t(interrogation.answerPlaceholder, lang)}
               value={state.answerInput}
             />
             <div className="answer-footer">
-              <p>{bilingual(content.scr04_interrogation.reassurance)}</p>
+              <p>{t(interrogation.reassurance, lang)}</p>
               <Button disabled={state.busy !== 'idle'} onClick={onAnswer}>
                 {state.busy === 'interrogation'
-                  ? bilingual(content.states.loading)
-                  : bilingual(content.scr04_interrogation.submitButton)}
+                  ? t(content.states.loading, lang)
+                  : t(interrogation.submitButton, lang)}
               </Button>
             </div>
           </Card>
@@ -770,12 +906,15 @@ function InterrogationScreen({
 }
 
 function RevealScreen({ state, onPushFurther }: { state: State; onPushFurther: () => void }) {
+  const lang = state.lang
+  const reveal = content.scr05_reveal
+
   if (state.busy === 'rewrite' || !state.rewrite || !state.draft) {
     return (
       <div className="generating-stage">
-        <TypingDots />
-        <h1>{bilingual(content.scr05_reveal.generating.title)}</h1>
-        <p>{bilingual(content.scr05_reveal.generating.body)}</p>
+        <TypingDots lang={lang} />
+        <h1>{t(reveal.generating.title, lang)}</h1>
+        <p>{t(reveal.generating.body, lang)}</p>
       </div>
     )
   }
@@ -784,9 +923,9 @@ function RevealScreen({ state, onPushFurther }: { state: State; onPushFurther: (
     <div className="reveal-screen">
       <Card dark className="banner-card">
         <div>
-          <span className="eyebrow">{bilingual(content.scr05_reveal.banner.eyebrow)}</span>
-          <h1>{bilingual(content.scr05_reveal.banner.title)}</h1>
-          <p>{bilingual(content.scr05_reveal.banner.body)}</p>
+          <span className="eyebrow">{t(reveal.banner.eyebrow, lang)}</span>
+          <h1>{t(reveal.banner.title, lang)}</h1>
+          <p>{t(reveal.banner.body, lang)}</p>
         </div>
         <div className="framing-chip">
           <span>{state.rewrite.framingScoreBefore}</span>
@@ -798,20 +937,20 @@ function RevealScreen({ state, onPushFurther }: { state: State; onPushFurther: (
         <Card className="essay-card before">
           <span className="essay-label">
             <i />
-            {bilingual(content.scr05_reveal.beforeLabel)}
+            {t(reveal.beforeLabel, lang)}
           </span>
           <p>{state.draft.body}</p>
         </Card>
         <Card className="essay-card after">
           <span className="essay-label">
             <i />
-            {bilingual(content.scr05_reveal.afterLabel)}
+            {t(reveal.afterLabel, lang)}
           </span>
           <p>{state.rewrite.rewrittenText}</p>
         </Card>
       </div>
       <section>
-        <h2 className="why-title">{bilingual(content.scr05_reveal.whyHeading)}</h2>
+        <h2 className="why-title">{t(reveal.whyHeading, lang)}</h2>
         <div className="why-grid">
           {state.rewrite.changes.map((change) => (
             <Card className="why-card" key={`${change.before}-${change.after}`}>
@@ -829,10 +968,10 @@ function RevealScreen({ state, onPushFurther }: { state: State; onPushFurther: (
           }}
           variant="dark"
         >
-          {bilingual(content.scr05_reveal.actions.export)}
+          {t(reveal.actions.export, lang)}
         </Button>
         <Button onClick={onPushFurther} variant="secondary">
-          {bilingual(content.scr05_reveal.actions.pushFurther)}
+          {t(reveal.actions.pushFurther, lang)}
         </Button>
       </div>
     </div>
@@ -842,23 +981,24 @@ function RevealScreen({ state, onPushFurther }: { state: State; onPushFurther: (
 function ScreenIntro({
   title,
   subtitle,
+  lang,
 }: {
-  title: { vi: string; en: string }
-  subtitle: { vi: string; en: string }
+  title: Bilingual
+  subtitle: Bilingual
+  lang: Lang
 }) {
   return (
     <div className="screen-intro">
-      <h1>{title.vi}</h1>
-      <p>{title.en}</p>
-      <p>{subtitle.vi}</p>
-      <small>{subtitle.en}</small>
+      <h1>{t(title, lang)}</h1>
+      <p>{t(subtitle, lang)}</p>
     </div>
   )
 }
 
 type ProfileFact = { state: 'captured' | 'gap'; text: string; gap?: string }
 
-function profileFacts(profile: Profile): ProfileFact[] {
+function profileFacts(profile: Profile, lang: Lang): ProfileFact[] {
+  const card = content.scr01_intake.profileCard
   const facts: ProfileFact[] = []
 
   if (profile.education) {
@@ -873,12 +1013,16 @@ function profileFacts(profile: Profile): ProfileFact[] {
     })),
   )
   facts.push(
-    ...profile.gapFlags.map((gap) => ({ state: 'gap' as const, text: gap, gap: 'Cần bổ sung' })),
+    ...profile.gapFlags.map((gap) => ({
+      state: 'gap' as const,
+      text: gap,
+      gap: t(card.gapHint, lang),
+    })),
   )
 
   return facts.length > 0
     ? facts
-    : [{ state: 'gap', text: 'Chưa có dữ liệu intake.', gap: 'Hãy gửi vài dòng về hồ sơ.' }]
+    : [{ state: 'gap', text: t(card.noIntakeData, lang), gap: t(card.intakeHint, lang) }]
 }
 
 function App() {
@@ -888,7 +1032,7 @@ function App() {
     const message = state.intakeInput.trim()
 
     if (!message) {
-      dispatch({ type: 'error', message: bilingual(content.states.error) })
+      dispatch({ type: 'error', message: t(content.states.error, state.lang) })
       return
     }
 
@@ -901,6 +1045,37 @@ function App() {
     }
 
     dispatch({ type: 'finishIntake', result: result.data })
+  }
+
+  async function handleFileIntake(file: File) {
+    dispatch({ type: 'startFileIntake', fileName: file.name })
+    const payload = await readIntakeFile(file)
+
+    if (!payload.ok) {
+      dispatch({ type: 'error', message: payload.error })
+      return
+    }
+
+    const result = await runFileIntakeStep({ state: state.agentState, file: payload.data })
+
+    if (!result.ok) {
+      dispatch({ type: 'error', message: result.error })
+      return
+    }
+
+    dispatch({ type: 'finishFileIntake', result: result.data })
+  }
+
+  async function handleMockProfile() {
+    dispatch({ type: 'startMockIntake' })
+    const result = await runMockDemoIntake(state.agentState)
+
+    if (!result.ok) {
+      dispatch({ type: 'error', message: result.error })
+      return
+    }
+
+    dispatch({ type: 'finishMockIntake', result: result.data })
   }
 
   async function handleScaffold() {
@@ -949,7 +1124,7 @@ function App() {
     }
 
     if (!state.answerInput.trim()) {
-      dispatch({ type: 'error', message: bilingual(content.states.insufficientData) })
+      dispatch({ type: 'error', message: t(content.states.insufficientData, state.lang) })
       return
     }
 
@@ -994,7 +1169,15 @@ function App() {
 
   switch (state.screen) {
     case 0:
-      screen = <IntakeScreen dispatch={dispatch} onSubmit={handleIntake} state={state} />
+      screen = (
+        <IntakeScreen
+          dispatch={dispatch}
+          onFileSelect={handleFileIntake}
+          onMockProfile={handleMockProfile}
+          onSubmit={handleIntake}
+          state={state}
+        />
+      )
       break
     case 1:
       screen = <ShortlistScreen dispatch={dispatch} state={state} />

@@ -28,12 +28,22 @@
     "title":   { "vi": "Kể cho SoPilot nghe về bạn", "en": "Tell SoPilot about yourself" },
     "subtitle":{ "vi": "Chia sẻ bất kỳ điều gì giúp SoPilot hiểu bạn hơn. Có thể là điểm số, hoạt động ngoại khóa, dự án bạn từng làm hoặc một trải nghiệm đáng nhớ. Bạn có thể viết bằng tiếng Việt hoặc tiếng Anh.", "en": "Tell SoPilot about yourself: grades, clubs, that project you're proud of. Vietnamese or English, however it comes out." },
     "inputPlaceholder": { "vi": "Viết hoặc dán thông tin về bạn tại đây...", "en": "Paste anything about you: grades, clubs, that project you're proud of…" },
+    "upload": {
+      "title": { "vi": "Upload hồ sơ", "en": "Upload documents" },
+      "subtitle": { "vi": "CV, bảng điểm, danh sách hoạt động, bản nháp SoP · PNG/JPG nếu là ảnh chụp", "en": "CV, transcript, activity list, SoP draft · PNG/JPG for photo scans" },
+      "dropHint": { "vi": "Kéo thả hoặc chọn file", "en": "Drag and drop or choose a file" },
+      "acceptLabel": { "vi": "Chọn file intake", "en": "Choose intake file" },
+      "analyzing": { "vi": "OpenAI đang đọc file…", "en": "OpenAI is reading your file…" },
+      "outOfScopePrefix": { "vi": "Ngoài phạm vi", "en": "Out of scope" },
+      "validPrefix": { "vi": "Đã import", "en": "Imported" }
+    },
+    "mockProfileButton": { "vi": "Hồ sơ mockup (demo)", "en": "Mock profile (demo)" },
     "messages": [
       { "role": "agent", "label": "SoPilot", "text": { "vi": "Chào Minh! Cứ kể cho mình nghe về bạn theo cách tự nhiên nhất, không cần viết thật chỉn chu. Có thể là điểm số, câu lạc bộ, một dự án bạn từng làm, hay một trải nghiệm khiến bạn nhớ mãi. Tiếng Việt hay tiếng Anh đều được.", "en": "Hi Minh! Tell me about yourself in whatever way feels natural. Grades, clubs, a project you built, a moment that stuck with you. Vietnamese or English, both work." } },
-      { "role": "user", "text": "mình học chuyên Lý, có giải nhì HSG tỉnh. mình làm 1 cái mạch cảm biến đo độ ẩm đất cho vườn rau của bà mình. tiếng anh mình hơi yếu phần viết." },
-      { "role": "agent", "label": "SoPilot", "text": "Tuyệt, “vườn rau của bà” là một chi tiết rất đáng giữ. Mình cũng đã đối chiếu nhanh với tiêu chí Berkeley ME để đánh giá mức phù hợp cho công bằng.", "sources": ["berkeley.edu/me", "usnews.edu"] },
-      { "role": "user", "text": "ok. mình cũng tham gia CLB robotics 2 năm, làm trưởng nhóm lập trình." },
-      { "role": "agent", "label": "SoPilot", "text": "Đã ghi. Mình thấy hồ sơ bạn mạnh về kỹ thuật thực hành. Điểm cần làm rõ là “vì sao” đằng sau mỗi việc. Sẵn sàng xem mức độ phù hợp chưa?" }
+      { "role": "user", "text": { "vi": "mình học chuyên Lý, có giải nhì HSG tỉnh. mình làm 1 cái mạch cảm biến đo độ ẩm đất cho vườn rau của bà mình. tiếng anh mình hơi yếu phần viết.", "en": "I study advanced physics and placed second in the provincial physics olympiad. I built a soil moisture sensor for my grandma's vegetable garden. My English writing is still weak." } },
+      { "role": "agent", "label": "SoPilot", "text": { "vi": "Tuyệt, “vườn rau của bà” là một chi tiết rất đáng giữ. Mình cũng đã đối chiếu nhanh với tiêu chí Berkeley ME để đánh giá mức phù hợp cho công bằng.", "en": "Great, \"grandma's vegetable garden\" is a detail worth keeping. I also cross-checked Berkeley ME criteria for a fair fit read." }, "sources": ["berkeley.edu/me", "usnews.edu"] },
+      { "role": "user", "text": { "vi": "ok. mình cũng tham gia CLB robotics 2 năm, làm trưởng nhóm lập trình.", "en": "ok. I also did robotics club for 2 years, led the programming team." } },
+      { "role": "agent", "label": "SoPilot", "text": { "vi": "Đã ghi. Mình thấy hồ sơ bạn mạnh về kỹ thuật thực hành. Điểm cần làm rõ là “vì sao” đằng sau mỗi việc. Sẵn sàng xem mức độ phù hợp chưa?", "en": "Noted. Your profile is strong on hands-on engineering. What still needs depth is the \"why\" behind each thing you did. Ready to see your fit?" } }
     ],
     "profileCard": {
       "liveHeading": { "vi": "Hồ sơ thật", "en": "Live profile" },

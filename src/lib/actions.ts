@@ -1,58 +1,31 @@
 import { z } from 'zod'
 import {
   MAX_AGENT_STEPS,
-  zAgentState,
   zDraft,
   zInterrogationSession,
   zProfile,
-  zReActStep,
   zRewriteResult,
+  zScoreFitInput,
   type AgentState,
   type Draft,
   type InterrogationSession,
   type InterrogationTurn,
   type Profile,
-  type ReActStep,
   type RewriteResult,
-  type SearchCriteriaInput,
-  type SearchCriteriaResult,
   type ScoreFitResult,
 } from './contracts.ts'
+export { runIntakeStep, finalizeIntakeFromProfile, type IntakeResult } from './agent/loop.ts'
+export {
+  runFileIntakeStep,
+  readIntakeFile,
+  type FileIntakeResult,
+  type IntakeFilePayload,
+} from './agent/file-intake.ts'
+export { runMockDemoIntake } from './demo/mock-intake.ts'
 import { callStructured, type LlmTransport } from './llm/client.ts'
-import { appendRollingSummary, updateAgentState } from './memory/state.ts'
-import { searchCriteria, type SearchCriteriaOptions } from './tools/search_criteria.ts'
 import { scoreFit } from './tools/score_fit.ts'
 export { fail, ok, validateInput, type ActionResult, type ErrorCode } from './result.ts'
 import { fail, ok, validateInput, type ActionResult } from './result.ts'
-
-export type IntakeResult = {
-  state: AgentState
-  step: ReActStep
-  userFacing: string | null
-  search: SearchCriteriaResult
-  fit: ScoreFitResult
-}
-
-export type RunIntakeInput = {
-  state: AgentState
-  userMessage: string | null
-}
-
-export type RunIntakeOptions = {
-  transport?: LlmTransport
-  search?: SearchCriteriaOptions
-}
-
-const zRunIntakeInput = z.object({
-  state: zAgentState,
-  userMessage: z.string().nullable(),
-})
-
-const zIntakeExtraction = z.object({
-  profile: zProfile,
-  assistantMessage: z.string().min(1),
-  shortlistSummary: z.string().min(1),
-})
 
 const zInterrogationPlan = z.object({
   targetSentence: z.string().min(1),
@@ -227,120 +200,6 @@ export async function generateRewrite(
   }
 
   return ok(fallbackRewrite(validated.data.draft, validated.data.session))
-}
-
-function mergeProfileFromText(profile: Profile, text: string): Profile {
-  const lower = text.toLowerCase()
-  const activities = [...profile.activities]
-
-  if (/\b(robot|robotics|sensor|project|club|clb|mach|mạch|cảm biến)\b/i.test(text)) {
-    activities.push({
-      title: text.match(/robotics/i) ? 'Robotics or engineering activity' : 'Student project',
-      role: /\b(lead|leader|trưởng|captain)\b/i.test(text) ? 'Leader' : null,
-      contribution: text.slice(0, 220),
-      impact: /\b(impact|help|giúp|community|bà|garden|vườn)\b/i.test(text)
-        ? text.slice(0, 220)
-        : null,
-    })
-  }
-
-  return zProfile.parse({
-    ...profile,
-    targetCountry: profile.targetCountry || inferCountry(text),
-    targetProgram: profile.targetProgram ?? inferProgram(text),
-    level: lower.includes('phd')
-      ? 'phd'
-      : lower.includes('master') || lower.includes('graduate')
-        ? 'graduate'
-        : lower.includes('grade 12') || lower.includes('lớp 12') || lower.includes('high school')
-          ? 'undergraduate'
-          : profile.level,
-    education: profile.education ?? inferEducation(text),
-    activities,
-    awards: mergeUnique(profile.awards, extractAwards(text)),
-    workExperience: profile.workExperience,
-    motivations: profile.motivations ?? inferMotivation(text),
-    gapFlags: mergeUnique(profile.gapFlags, inferGaps(text)),
-  })
-}
-
-function inferCountry(text: string): string {
-  if (/\b(canada|toronto|ubc)\b/i.test(text)) {
-    return 'Canada'
-  }
-
-  if (/\b(uk|england|cambridge|oxford)\b/i.test(text)) {
-    return 'United Kingdom'
-  }
-
-  return 'United States'
-}
-
-function inferProgram(text: string): string | null {
-  if (/\b(computer science|cs|eecs|robotics|software)\b/i.test(text)) {
-    return 'Computer Science'
-  }
-
-  if (/\b(engineering|mechanical|kỹ thuật|ky thuat|robot)\b/i.test(text)) {
-    return 'Engineering'
-  }
-
-  return null
-}
-
-function inferEducation(text: string): string | null {
-  const fragments = text
-    .split(/[.;\n]/)
-    .map((part) => part.trim())
-    .filter((part) => /\b(gpa|grade|school|lớp|lop|physics|math|lý|ly|ielts|toefl)\b/i.test(part))
-
-  return fragments.at(0) ?? null
-}
-
-function inferMotivation(text: string): string | null {
-  const fragments = text
-    .split(/[.;\n]/)
-    .map((part) => part.trim())
-    .filter((part) => /\b(want|hope|because|vì|muốn|dream|ước mơ|help|giúp)\b/i.test(part))
-
-  return fragments.at(0) ?? null
-}
-
-function extractAwards(text: string): string[] {
-  return text
-    .split(/[.;\n]/)
-    .map((part) => part.trim())
-    .filter((part) => /\b(award|prize|winner|giải|hsg|olympiad|honou?r)\b/i.test(part))
-}
-
-function inferGaps(text: string): string[] {
-  const gaps: string[] = []
-
-  if (!/\b(ielts|toefl|duolingo|sat|act)\b/i.test(text)) {
-    gaps.push('Missing verified English or standardized testing evidence.')
-  }
-
-  if (!/\b(impact|result|helped|giúp|changed|measured|users?|community)\b/i.test(text)) {
-    gaps.push('Need measurable impact or a concrete person/community affected.')
-  }
-
-  if (!/\b(university|college|program|major|school|ngành|truong|trường)\b/i.test(text)) {
-    gaps.push('Need target school or target program.')
-  }
-
-  return gaps
-}
-
-function mergeUnique(existing: string[], next: string[]): string[] {
-  return [...new Set([...existing, ...next].map((item) => item.trim()).filter(Boolean))]
-}
-
-function summarizeFit(search: SearchCriteriaResult, fit: ScoreFitResult): string {
-  if (!search.found) {
-    return 'I could not verify live admissions criteria, so I am showing insufficient data instead of inventing a fit.'
-  }
-
-  return `Live criteria found. Fit band: ${fit.band}. Met ${fit.criteriaMet}/${fit.criteriaTotal} sourced checks.`
 }
 
 function fallbackDraft(profile: Profile): string {

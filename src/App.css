@@ -61,11 +61,17 @@
   color: var(--indigo);
 }
 
-.lang-toggle span {
+.lang-toggle span,
+.lang-toggle button {
   display: grid;
   min-width: 48px;
   place-items: center;
   border-radius: 999px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
 }
 
 .lang-toggle .active {
@@ -212,20 +218,9 @@
 
 .screen-intro p {
   max-width: 760px;
-}
-
-.screen-intro p:first-of-type {
-  margin-bottom: 12px;
-  color: var(--indigo);
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.screen-intro small {
-  display: block;
-  margin-top: 4px;
+  margin: 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.55;
 }
 
@@ -337,9 +332,107 @@
   gap: 24px;
 }
 
+.intake-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.upload-card {
+  padding: 18px 20px;
+}
+
+.upload-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.upload-head h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.upload-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.upload-dropzone {
+  display: flex;
+  min-height: 112px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px;
+  border: 1.5px dashed var(--line-soft);
+  border-radius: 12px;
+  background: #faf7f2;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--indigo);
+  background: var(--indigo-tint);
+}
+
+.upload-dropzone:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.upload-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--indigo-tint);
+  color: var(--indigo);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.upload-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.upload-meta,
+.upload-status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.upload-status {
+  color: var(--indigo);
+}
+
+.message-bubble.agent.tone-warning {
+  border-left: 4px solid var(--amber);
+  background: #f4ecdb;
+}
+
+.message-bubble.agent.tone-success {
+  border-left: 4px solid #3d8b63;
+  background: #edf6f0;
+}
+
 .chat-card {
   display: flex;
-  height: 560px;
+  height: 480px;
   flex-direction: column;
   overflow: hidden;
 }

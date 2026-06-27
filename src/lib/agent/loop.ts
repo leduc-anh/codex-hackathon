@@ -88,6 +88,27 @@ export async function runIntakeStep(
   const profile = extracted.ok
     ? extracted.data.profile
     : mergeProfileFromText(validated.data.state.profile, userMessage)
+
+  return finalizeIntakeFromProfile(
+    validated.data.state,
+    profile,
+    `Student said: ${userMessage}`,
+    extracted.ok
+      ? extracted.data.assistantMessage
+      : 'I captured the usable profile facts and marked the missing evidence. I could not reach the live LLM, so I updated your profile with local extraction.',
+    extracted.ok ? extracted.data.shortlistSummary : undefined,
+    options,
+  )
+}
+
+export async function finalizeIntakeFromProfile(
+  state: AgentState,
+  profile: Profile,
+  summarySlice: string,
+  userFacing: string,
+  shortlistSummary?: string,
+  options: RunIntakeOptions = {},
+): Promise<ActionResult<IntakeResult>> {
   const searchInput = buildSearchInput(profile)
   const steps: ReActStep[] = []
 
@@ -127,19 +148,10 @@ export async function runIntakeStep(
       : 'Profile updated, no sourced criteria found, deterministic scorer abstained.',
     action: {
       type: 'finish',
-      shortlistSummary: extracted.ok ? extracted.data.shortlistSummary : summarizeFit(search, fit),
+      shortlistSummary: shortlistSummary ?? summarizeFit(search, fit),
     },
   })
-  const nextState = appendRollingSummary(
-    updateAgentState(validated.data.state, { profile }),
-    `Student said: ${userMessage}`,
-  )
-  const degradedNote = extracted.ok
-    ? ''
-    : ' I could not reach the live LLM, so I updated your profile with local extraction.'
-  const userFacing = extracted.ok
-    ? extracted.data.assistantMessage
-    : `I captured the usable profile facts and marked the missing evidence.${degradedNote}`
+  const nextState = appendRollingSummary(updateAgentState(state, { profile }), summarySlice)
 
   return ok({
     state: nextState,
