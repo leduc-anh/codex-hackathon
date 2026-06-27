@@ -1,4 +1,9 @@
 import type { z } from 'zod'
+import {
+  canCallOpenAi,
+  openAiPostJson,
+  readEnv,
+} from '../openai/config.ts'
 import { fail, type ActionResult } from '../result.ts'
 
 export type StructuredLlmRequest = {
@@ -30,7 +35,7 @@ type OpenAiContentPart =
   | { type: 'image_url'; image_url: { url: string; detail?: 'low' | 'high' | 'auto' } }
 
 const DEFAULT_MODEL = 'gpt-4o-mini'
-const DEFAULT_OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions'
+const CHAT_COMPLETIONS_PATH = '/v1/chat/completions'
 
 export async function callStructured<T>(
   schema: z.ZodType<T>,
@@ -74,33 +79,28 @@ export async function callStructured<T>(
 export async function defaultOpenAiChatTransport(
   request: LlmTransportRequest,
 ): Promise<unknown> {
-  const apiKey = readEnv('LLM_API_KEY')
-
-  if (!apiKey) {
+  if (!canCallOpenAi()) {
     throw new Error('Missing LLM_API_KEY')
   }
 
-  const endpoint = readEnv('LLM_API_BASE') ?? DEFAULT_OPENAI_CHAT_URL
   const model = request.model ?? readEnv('LLM_MODEL') ?? DEFAULT_MODEL
   const messages = buildMessages(request)
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
+  const response = await openAiPostJson(
+    CHAT_COMPLETIONS_PATH,
+    {
       model,
       messages,
       temperature: request.temperature ?? 0.2,
       max_tokens: request.maxTokens ?? 1200,
       response_format: { type: 'json_object' },
-    }),
-  })
+    },
+    { baseUrl: readEnv('LLM_API_BASE') },
+  )
 
   if (!response.ok) {
-    throw new Error(`LLM request failed with ${response.status}`)
+    const detail = await response.text().catch(() => '')
+    throw new Error(`LLM request failed with ${response.status}${detail ? `: ${detail}` : ''}`)
   }
 
   const payload: unknown = await response.json()
@@ -213,17 +213,6 @@ function extractJsonText(raw: string): string {
   }
 
   return raw.trim()
-}
-
-function readEnv(name: string): string | undefined {
-  const importMetaEnv = (import.meta as ImportMeta & {
-    env?: Record<string, string | undefined>
-  }).env
-  const globalProcess = (globalThis as unknown as {
-    process?: { env?: Record<string, string | undefined> }
-  }).process
-
-  return importMetaEnv?.[name] ?? globalProcess?.env?.[name]
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

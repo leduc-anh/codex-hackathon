@@ -12,8 +12,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), tailwindcss()],
     server: {
       proxy: {
-        // OpenAI — used by the avatar TTS (`/v1/audio/speech`). The key is injected here
-        // (server-side) and NEVER reaches the browser. Client calls relative /api/openai/*.
+        // OpenAI chat, web search, and TTS. LLM_API_KEY from `.env` is injected server-side;
+        // the browser calls relative /api/openai/* only.
         '/api/openai': {
           target: 'https://api.openai.com',
           changeOrigin: true,
