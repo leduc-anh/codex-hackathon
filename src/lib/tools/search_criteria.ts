@@ -18,6 +18,8 @@ export type SearchCriteriaOptions = {
 }
 
 const DEFAULT_MAX_RESULTS = 5
+const DEFAULT_OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
+const DEFAULT_OPENAI_RESPONSES_PROXY_URL = '/api/openai/v1/responses'
 
 export async function searchCriteria(
   input: SearchCriteriaInput,
@@ -46,17 +48,24 @@ export async function openAiWebSearchProvider(
   options: { maxResults: number },
 ): Promise<Source[]> {
   const apiKey = readEnv('LLM_API_KEY')
+  const endpoint =
+    readEnv('OPENAI_RESPONSES_API_BASE') ??
+    (isBrowser() ? DEFAULT_OPENAI_RESPONSES_PROXY_URL : DEFAULT_OPENAI_RESPONSES_URL)
 
-  if (!apiKey) {
+  if (!apiKey && !isRelativeUrl(endpoint)) {
     return []
   }
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
 
-  const response = await fetch(readEnv('OPENAI_RESPONSES_API_BASE') ?? 'https://api.openai.com/v1/responses', {
+  if (apiKey) {
+    headers.Authorization = `Bearer ${apiKey}`
+  }
+
+  const response = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify({
       model: readEnv('OPENAI_WEB_SEARCH_MODEL') ?? 'gpt-4.1-mini',
       tools: [{ type: 'web_search', search_context_size: 'low' }],
@@ -298,6 +307,14 @@ function readEnv(name: string): string | undefined {
   }).process
 
   return importMetaEnv?.[name] ?? globalProcess?.env?.[name]
+}
+
+function isBrowser(): boolean {
+  return typeof window !== 'undefined'
+}
+
+function isRelativeUrl(url: string): boolean {
+  return url.startsWith('/')
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

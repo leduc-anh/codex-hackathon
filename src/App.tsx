@@ -1,4 +1,4 @@
-import { Suspense, lazy, useReducer } from 'react'
+import { Suspense, lazy, useEffect, useReducer } from 'react'
 import copy from '../docs/page-content.json'
 import {
   canJumpToScreen,
@@ -12,6 +12,14 @@ import {
   type FileIntakeResult,
   type IntakeResult,
 } from './lib/actions.ts'
+import {
+  zAgentState,
+  zDraft,
+  zInterrogationSession,
+  zRewriteResult,
+  zSearchCriteriaResult,
+  zScoreFitResult,
+} from './lib/contracts.ts'
 import type {
   AgentState,
   Draft,
@@ -84,6 +92,7 @@ type Action =
 const content = copy as typeof copy
 const steps = content.global.stepper
 const CoLinhAvatar = lazy(() => import('./components/CoLinhAvatar'))
+const UI_STATE_STORAGE_KEY = 'sopilot.uiState'
 
 function t(value: Bilingual, lang: Lang) {
   return value[lang]
@@ -122,6 +131,158 @@ const initialState: State = {
   lang: 'vi',
   busy: 'idle',
   error: '',
+}
+
+type PersistedState = Pick<
+  State,
+  | 'screen'
+  | 'agentState'
+  | 'messages'
+  | 'intakeInput'
+  | 'search'
+  | 'fit'
+  | 'draftText'
+  | 'draft'
+  | 'session'
+  | 'rewrite'
+  | 'answerInput'
+  | 'ttsOn'
+  | 'coachingMode'
+  | 'lang'
+>
+
+function createInitialState(): State {
+  const persisted = loadPersistedState()
+
+  if (!persisted) {
+    return initialState
+  }
+
+  const agentState = updateAgentState(persisted.agentState, {
+    draft: persisted.draft,
+    session: persisted.session,
+  })
+
+  return {
+    ...initialState,
+    ...persisted,
+    agentState,
+    draftText: persisted.draftText || persisted.draft?.body || '',
+    busy: 'idle',
+    error: '',
+  }
+}
+
+function loadPersistedState(): PersistedState | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const raw = window.sessionStorage.getItem(UI_STATE_STORAGE_KEY)
+
+  if (!raw) {
+    return null
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(raw)
+
+    if (!isRecord(parsed)) {
+      return null
+    }
+
+    const agentState = zAgentState.safeParse(parsed.agentState)
+    const messages = parseMessages(parsed.messages)
+
+    if (!agentState.success || messages.length === 0) {
+      return null
+    }
+
+    return {
+      screen: parseScreen(parsed.screen),
+      agentState: agentState.data,
+      messages,
+      intakeInput: typeof parsed.intakeInput === 'string' ? parsed.intakeInput : '',
+      search: parseNullable(zSearchCriteriaResult, parsed.search),
+      fit: parseNullable(zScoreFitResult, parsed.fit),
+      draftText: typeof parsed.draftText === 'string' ? parsed.draftText : '',
+      draft: parseNullable(zDraft, parsed.draft),
+      session: parseNullable(zInterrogationSession, parsed.session),
+      rewrite: parseNullable(zRewriteResult, parsed.rewrite),
+      answerInput: typeof parsed.answerInput === 'string' ? parsed.answerInput : '',
+      ttsOn: typeof parsed.ttsOn === 'boolean' ? parsed.ttsOn : true,
+      coachingMode: parsed.coachingMode === 'interview' ? 'interview' : 'feedback',
+      lang: parsed.lang === 'en' ? 'en' : 'vi',
+    }
+  } catch {
+    return null
+  }
+}
+
+function savePersistedState(state: State): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const payload: PersistedState = {
+    screen: state.screen,
+    agentState: state.agentState,
+    messages: state.messages,
+    intakeInput: state.intakeInput,
+    search: state.search,
+    fit: state.fit,
+    draftText: state.draftText,
+    draft: state.draft,
+    session: state.session,
+    rewrite: state.rewrite,
+    answerInput: state.answerInput,
+    ttsOn: state.ttsOn,
+    coachingMode: state.coachingMode,
+    lang: state.lang,
+  }
+
+  window.sessionStorage.setItem(UI_STATE_STORAGE_KEY, JSON.stringify(payload))
+}
+
+function parseNullable<T>(schema: { safeParse: (input: unknown) => { success: true; data: T } | { success: false } }, value: unknown): T | null {
+  if (value === null || typeof value === 'undefined') {
+    return null
+  }
+
+  const result = schema.safeParse(value)
+  return result.success ? result.data : null
+}
+
+function parseScreen(value: unknown): Screen {
+  return value === 1 || value === 2 || value === 3 || value === 4 ? value : 0
+}
+
+function parseMessages(value: unknown): Message[] {
+  if (!Array.isArray(value)) {
+    return [seedMessage('vi')]
+  }
+
+  const messages = value.filter(isMessage)
+  return messages.length > 0 ? messages : [seedMessage('vi')]
+}
+
+function isMessage(value: unknown): value is Message {
+  if (!isRecord(value)) {
+    return false
+  }
+
+  return (
+    (value.role === 'agent' || value.role === 'user') &&
+    typeof value.text === 'string' &&
+    (typeof value.label === 'undefined' || typeof value.label === 'string') &&
+    (typeof value.sources === 'undefined' ||
+      (Array.isArray(value.sources) && value.sources.every((source) => typeof source === 'string'))) &&
+    (typeof value.tone === 'undefined' || value.tone === 'warning' || value.tone === 'success')
+  )
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
 }
 
 function reducer(state: State, action: Action): State {
@@ -1144,7 +1305,11 @@ function profileFacts(profile: Profile, lang: Lang): ProfileFact[] {
 }
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [state, dispatch] = useReducer(reducer, undefined, createInitialState)
+
+  useEffect(() => {
+    savePersistedState(state)
+  }, [state])
 
   async function handleIntake() {
     const message = state.intakeInput.trim()
