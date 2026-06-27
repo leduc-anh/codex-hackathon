@@ -73,84 +73,9 @@ const zExtractedSpecific = z.object({
 
 const MAX_INTERROGATION_TURNS = 4
 
-export async function runIntakeStep(
-  input: RunIntakeInput,
-  options: RunIntakeOptions = {},
-): Promise<ActionResult<IntakeResult>> {
-  const validated = validateInput(zRunIntakeInput, input)
-
-  if (!validated.ok) {
-    return validated
-  }
-
-  const userMessage = validated.data.userMessage?.trim() ?? ''
-
-  if (!userMessage) {
-    return fail('VALIDATION', 'A user message is required before running intake.')
-  }
-
-  const extracted = await callStructured(
-    zIntakeExtraction,
-    {
-      system: [
-        'You are SoPilot intake.',
-        'Return JSON only.',
-        'Extract only facts stated by the student or already present in state.',
-        'Do not invent scores, admissions facts, schools, awards, or personal details.',
-      ].join('\n'),
-      prompt: JSON.stringify({
-        task:
-          'Merge the user message into the AgentState profile. Add gapFlags for missing role, impact, target school/program, English score, or motivation details. Keep the assistantMessage short and useful.',
-        previousState: validated.data.state,
-        userMessage,
-      }),
-      temperature: 0.1,
-      maxTokens: 1200,
-    },
-    { transport: options.transport },
-  )
-
-  const profile = extracted.ok
-    ? extracted.data.profile
-    : mergeProfileFromText(validated.data.state.profile, userMessage)
-
-  const searchInput = buildSearchInput(profile)
-  const search = await searchCriteria(searchInput, options.search)
-  const fit = scoreFit({ profile, criteria: search.criteria })
-  const nextState = appendRollingSummary(
-    updateAgentState(validated.data.state, { profile }),
-    `Student said: ${userMessage}`,
-  )
-  const degradedNote = extracted.ok
-    ? ''
-    : ' I could not reach the live LLM, so I updated your profile with local extraction.'
-  const userFacing = extracted.ok
-    ? extracted.data.assistantMessage
-    : `I captured the usable profile facts and marked the missing evidence.${degradedNote}`
-  const step = zReActStep.parse({
-    thought: search.found
-      ? 'Profile updated, sourced criteria found, deterministic fit computed.'
-      : 'Profile updated, no sourced criteria found, deterministic scorer abstained.',
-    action: {
-      type: 'finish',
-      shortlistSummary: extracted.ok
-        ? extracted.data.shortlistSummary
-        : summarizeFit(search, fit),
-    },
-  })
-
-  return ok({
-    state: nextState,
-    step,
-    userFacing,
-    search,
-    fit,
-  })
-}
-
 export function scoreFitAction(input: unknown): ActionResult<ScoreFitResult> {
   try {
-    return ok(scoreFit(z.object({ profile: zProfile, criteria: z.array(z.any()) }).parse(input)))
+    return ok(scoreFit(zScoreFitInput.parse(input)))
   } catch (error) {
     return fail('VALIDATION', error instanceof Error ? error.message : 'Invalid score input')
   }
@@ -302,25 +227,6 @@ export async function generateRewrite(
   }
 
   return ok(fallbackRewrite(validated.data.draft, validated.data.session))
-}
-
-function buildSearchInput(profile: Profile): SearchCriteriaInput {
-  return {
-    school: inferSchool(profile.targetProgram),
-    program: profile.targetProgram,
-    scholarship: null,
-    level: profile.level,
-    country: profile.targetCountry || 'United States',
-  }
-}
-
-function inferSchool(targetProgram: string | null): string | null {
-  if (!targetProgram) {
-    return null
-  }
-
-  const [school] = targetProgram.split(/[|,]/)
-  return school?.trim() || null
 }
 
 function mergeProfileFromText(profile: Profile, text: string): Profile {

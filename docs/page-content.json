@@ -3,7 +3,7 @@
     "product": "SoPilot",
     "purpose": "All page copy, bilingual (Vietnamese primary, English secondary). This is the demo's seed data and the source of truth for strings. Persona: 'Minh Nguyễn', 18, từ Hà Nội, strong in physics + hands-on engineering, shaky English essay framing.",
     "rules": [
-      "Vietnamese is primary; English is secondary (shown smaller/muted or as a sibling line).",
+      "VI/EN toggle shows one language at a time; never mix or duplicate both on screen.",
       "No em-dashes (—) anywhere. Use period, comma, or middot (·) as bilingual separator.",
       "Fit is shown as a qualitative band, NEVER a percentage.",
       "Layout to the LONGER of the VI/EN string so nothing breaks.",
@@ -29,13 +29,20 @@
     "subtitle":{ "vi": "Chia sẻ bất kỳ điều gì giúp SoPilot hiểu bạn hơn. Có thể là điểm số, hoạt động ngoại khóa, dự án bạn từng làm hoặc một trải nghiệm đáng nhớ. Bạn có thể viết bằng tiếng Việt hoặc tiếng Anh.", "en": "Tell SoPilot about yourself: grades, clubs, that project you're proud of. Vietnamese or English, however it comes out." },
     "inputPlaceholder": { "vi": "Viết hoặc dán thông tin về bạn tại đây...", "en": "Paste anything about you: grades, clubs, that project you're proud of…" },
     "messages": [
-      { "role": "agent", "label": "SoPilot", "text": "Chào Minh! Cứ kể cho mình nghe về bạn theo cách tự nhiên nhất, không cần viết thật chỉn chu. Có thể là điểm số, câu lạc bộ, một dự án bạn từng làm, hay một trải nghiệm khiến bạn nhớ mãi. Tiếng Việt hay tiếng Anh đều được." },
+      { "role": "agent", "label": "SoPilot", "text": { "vi": "Chào Minh! Cứ kể cho mình nghe về bạn theo cách tự nhiên nhất, không cần viết thật chỉn chu. Có thể là điểm số, câu lạc bộ, một dự án bạn từng làm, hay một trải nghiệm khiến bạn nhớ mãi. Tiếng Việt hay tiếng Anh đều được.", "en": "Hi Minh! Tell me about yourself in whatever way feels natural. Grades, clubs, a project you built, a moment that stuck with you. Vietnamese or English, both work." } },
       { "role": "user", "text": "mình học chuyên Lý, có giải nhì HSG tỉnh. mình làm 1 cái mạch cảm biến đo độ ẩm đất cho vườn rau của bà mình. tiếng anh mình hơi yếu phần viết." },
       { "role": "agent", "label": "SoPilot", "text": "Tuyệt, “vườn rau của bà” là một chi tiết rất đáng giữ. Mình cũng đã đối chiếu nhanh với tiêu chí Berkeley ME để đánh giá mức phù hợp cho công bằng.", "sources": ["berkeley.edu/me", "usnews.edu"] },
       { "role": "user", "text": "ok. mình cũng tham gia CLB robotics 2 năm, làm trưởng nhóm lập trình." },
       { "role": "agent", "label": "SoPilot", "text": "Đã ghi. Mình thấy hồ sơ bạn mạnh về kỹ thuật thực hành. Điểm cần làm rõ là “vì sao” đằng sau mỗi việc. Sẵn sàng xem mức độ phù hợp chưa?" }
     ],
     "profileCard": {
+      "liveHeading": { "vi": "Hồ sơ thật", "en": "Live profile" },
+      "itemsLabel": { "vi": "mục", "en": "items" },
+      "noProgram": { "vi": "Chưa chọn ngành", "en": "No program selected" },
+      "educationPending": { "vi": "Thông tin học tập sẽ hiện ở đây sau intake.", "en": "Education details will appear here after intake." },
+      "gapHint": { "vi": "Cần bổ sung", "en": "Needs detail" },
+      "noIntakeData": { "vi": "Chưa có dữ liệu intake.", "en": "No intake data yet." },
+      "intakeHint": { "vi": "Hãy gửi vài dòng về hồ sơ.", "en": "Send a few lines about your profile." },
       "heading": { "vi": "Hồ sơ đang hoàn thiện", "en": "Profile in progress" },
       "name": "Minh Nguyễn",
       "sub": { "vi": "Lớp 12 · Hà Nội · ứng viên ngành kỹ thuật", "en": "Grade 12 · Hà Nội · Engineering applicant" },
@@ -54,6 +61,9 @@
     "title":   { "vi": "Mức độ phù hợp của bạn", "en": "Your fit" },
     "subtitle":{ "vi": "Đánh giá thẳng thắn cho từng mục tiêu, kèm đúng phần cần cải thiện. Không dùng phần trăm giả, chỉ cho bạn thấy hiện đang ở đâu và nên làm gì tiếp.", "en": "A candid fit check for each target, with the next improvement clearly named. No fake percentages, just where you stand and what to do next." },
     "gapLabel": { "vi": "Cần bổ sung", "en": "To close the gap" },
+    "noGap": { "vi": "Chưa thấy khoảng trống nghiêm trọng từ tiêu chí đã có nguồn.", "en": "No critical gap found from sourced criteria." },
+    "targetProgramFallback": { "vi": "Chương trình mục tiêu", "en": "Target program" },
+    "targetCountryPending": { "vi": "Quốc gia mục tiêu chưa rõ", "en": "Target country pending" },
     "sourcePrefix": { "vi": "nguồn", "en": "source" },
     "targets": [
       {
@@ -118,7 +128,10 @@
       "speaking": { "vi": "Đang nói", "en": "Speaking" },
       "awaiting": { "vi": "Đang chờ bạn", "en": "Awaiting you" }
     },
-    "ttsToggle": { "on": "🔊 TTS BẬT · VOICE ON", "off": "🔇 TTS TẮT · TEXT-ONLY" },
+    "ttsToggle": {
+      "on": { "vi": "🔊 TTS bật", "en": "🔊 Voice on" },
+      "off": { "vi": "🔇 TTS tắt", "en": "🔇 Text only" }
+    },
     "degradedNote": { "vi": "Giọng nói đang tắt. Cô Linh vẫn trao đổi bằng văn bản.", "en": "Voice is off. Linh will continue in text." },
     "turnLabel": { "vi": "Câu hỏi", "en": "Turn" },
     "answerPlaceholder": { "vi": "Trả lời thật lòng, kể một khoảnh khắc thay vì tóm tắt.", "en": "Answer honestly: tell the moment, don't summarize." },
@@ -197,6 +210,13 @@
       "export": { "vi": "Xuất bản luận", "en": "Export SoP" },
       "pushFurther": { "vi": "Đào sâu thêm", "en": "Go deeper" }
     }
+  },
+
+  "fitBands": {
+    "strong_match": { "vi": "PHÙ HỢP TỐT", "en": "STRONG MATCH" },
+    "competitive": { "vi": "CẠNH TRANH", "en": "COMPETITIVE" },
+    "reach": { "vi": "THÁCH THỨC", "en": "REACH" },
+    "insufficient_data": { "vi": "CHƯA ĐỦ DỮ LIỆU", "en": "INSUFFICIENT" }
   },
 
   "states": {

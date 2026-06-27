@@ -1441,3 +1441,257 @@ textarea:focus-visible {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Full-width correction: keep the reference layout, but use the original design tokens. */
+:root {
+  --paper: #f4f1ec;
+  --surface: #fbfaf7;
+  --sand: #e6decf;
+  --line: #e0d8c9;
+  --line-soft: #d8cfc0;
+  --ink: #2b2440;
+  --muted: #6b6478;
+  --faint: #a89fb0;
+  --indigo: #5a4a86;
+  --indigo-tint: #eae6f0;
+  --clay: #c9583c;
+  --clay-tint: #f6dfd7;
+  --sage: #4f7a63;
+  --amber: #b07d2b;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-reveal: 0 8px 30px rgba(201, 88, 60, 0.12);
+  --shadow-signature: 0 8px 30px rgba(90, 74, 134, 0.14);
+}
+
+.app-shell {
+  background:
+    linear-gradient(90deg, rgba(90, 74, 134, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(201, 88, 60, 0.04), transparent 360px),
+    var(--paper);
+  background-size: 72px 72px, auto, auto;
+  padding: clamp(12px, 2.2vw, 28px);
+}
+
+.topbar {
+  inset: clamp(12px, 2.2vw, 28px) auto clamp(12px, 2.2vw, 28px) clamp(12px, 2.2vw, 28px);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.brand,
+.stepper-stop.current,
+.lang-toggle {
+  color: var(--paper);
+}
+
+.brand-mark,
+.brand::after,
+.stepper-stop.current .step-node {
+  background: var(--clay);
+  color: var(--paper);
+}
+
+.stepper-stop.done .step-node {
+  background: var(--sage);
+  color: var(--paper);
+}
+
+.stepper-stop {
+  color: rgba(244, 241, 236, 0.68);
+}
+
+.step-node,
+.lang-toggle span {
+  border-color: rgba(244, 241, 236, 0.2);
+  color: rgba(244, 241, 236, 0.8);
+}
+
+.step-labels span:last-child,
+.stepper::before,
+.lang-toggle::before {
+  color: rgba(244, 241, 236, 0.46);
+}
+
+.lang-toggle .active {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.back-row,
+.main-stage {
+  width: calc(100vw - 272px);
+  max-width: none;
+  margin-left: 216px;
+}
+
+.back-row {
+  border-color: var(--ink);
+  background: rgba(251, 250, 247, 0.88);
+}
+
+.back-row::before {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.back-row::after {
+  color: var(--ink);
+  text-shadow: none;
+}
+
+.back-button,
+.button-primary,
+.button-dark,
+.send-button {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.main-stage {
+  border-color: var(--ink);
+  background: rgba(251, 250, 247, 0.88);
+}
+
+.card,
+.message-bubble.agent,
+.spotlight-card,
+.answer-card,
+.state-note {
+  background: var(--surface);
+}
+
+.card-dark,
+.profile-card,
+.question-card,
+.banner-card {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.chat-card,
+.essay-card.after,
+.why-card {
+  background: var(--clay-tint);
+}
+
+.target-card:nth-child(1) {
+  background: var(--clay-tint);
+}
+
+.target-card:nth-child(2) {
+  background: var(--indigo-tint);
+}
+
+.target-card:nth-child(3),
+.writing-chip,
+.subtle-state {
+  background: #f4ecdb;
+  color: #5c420f;
+}
+
+.editor-card,
+.avatar-panel {
+  background: var(--indigo-tint);
+}
+
+.message-bubble.user {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.input-dock,
+.editor-toolbar,
+.editor-footer {
+  background: var(--paper);
+}
+
+.input-dock textarea,
+.answer-card textarea,
+.draft-editor {
+  border-color: var(--line-soft);
+  background: var(--surface);
+}
+
+.gap-callout,
+.diff-token,
+.why-card strong {
+  background: var(--surface);
+}
+
+.fit-band {
+  background: rgba(251, 250, 247, 0.7);
+  color: var(--ink);
+}
+
+.progress-pips span {
+  background: var(--line);
+}
+
+.progress-pips .done,
+.criteria-mark.met {
+  background: var(--sage);
+  color: var(--paper);
+}
+
+.progress-pips .current,
+.criteria-mark.unmet {
+  background: var(--clay);
+  color: var(--paper);
+}
+
+@media (min-width: 1101px) {
+  .back-row,
+  .main-stage {
+    width: calc(100vw - 272px);
+  }
+
+  .screen-intro {
+    max-width: min(980px, 80%);
+  }
+
+  .intake-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 28vw);
+  }
+}
+
+@media (max-width: 1100px) {
+  .topbar {
+    inset: auto;
+  }
+
+  .back-row,
+  .main-stage {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .topbar-inner {
+    gap: 16px;
+  }
+
+  .stepper {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .stepper-stop {
+    min-height: 38px;
+    padding: 6px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .step-labels,
+  .stepper-stop.current .step-labels span:first-child {
+    display: none;
+  }
+
+  .lang-toggle {
+    max-width: none;
+  }
+}

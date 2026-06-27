@@ -36,4 +36,4 @@ the code change that completes a task.
 - [ ] T-103 · — · SCR-07 · Export SoP (PDF / Word / copy) · status: todo
 - [ ] T-104 · REQ-601..603 · SCR-08 · `log_feedback` collect + demo ONE mentor-approved `Guideline` injection · status: todo
 - [ ] T-105 · — · SCR-09 · One-section landing page for the pitch · status: todo
-- [ ] T-106 · REQ-705 · — · VN/EN bilingual polish · status: todo
+- [x] T-106 · REQ-705 · — · VN/EN bilingual semantic/copy polish for the current demo path · status: done

@@ -36,7 +36,7 @@ Update this file the moment a task changes state. This file is the source of tru
 
 - [ ] T-028 · REQ-601 · SCR-08 · Record anonymized mentor feedback via log_feedback · status: todo
 - [ ] T-029 · REQ-602 · SCR-08 · Demonstrate exactly one approved Guideline injected at runtime · status: todo
-- [ ] T-030 · REQ-705 · SCR-01 · Add bilingual UI polish after the P0 path works end-to-end · status: todo
+- [x] T-030 · REQ-705 · SCR-01 · Add bilingual UI semantic/copy polish for the current demo path · status: done
 - [ ] T-031 · REQ-P1 · SCR-06 · Add Profile Edit screen only after P0 is complete · status: todo
 - [ ] T-032 · REQ-P1 · SCR-07 · Add Export screen for PDF, Word, or copy only after P0 is complete · status: todo
 - [ ] T-033 · REQ-P1 · SCR-09 · Add one-section Landing page only after P0 is complete · status: todo
