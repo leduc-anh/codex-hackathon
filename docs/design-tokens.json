@@ -1,0 +1,121 @@
+{
+  "$meta": {
+    "product": "SoPilot",
+    "tagline": { "vi": "Hành trang du học của bạn", "en": "Your study-abroad, in your own words." },
+    "version": "1.0",
+    "notes": "Single source of truth for the visual system. All values map cleanly to Tailwind (4px spacing scale, small color set, standard radii). Deliberately avoids the AI-design defaults (cream+serif+terracotta, near-black+acid, broadsheet hairline). Theme: the Vietnamese to Western study-abroad journey. Microcopy rule: no em-dashes (—) in UI copy; no percentages for fit; design with the longer of VI/EN strings."
+  },
+
+  "color": {
+    "comment": "viet = the journey name used in design docs; role = where it is used.",
+    "paper":   { "hex": "#F4F1EC", "viet": "Giấy",  "role": "App ground / default page background" },
+    "surface": { "hex": "#FBFAF7", "viet": "Trang", "role": "Raised cards & panels (half-step above paper)" },
+    "sand":    { "hex": "#E6DECF", "viet": "Cát",   "role": "Muted fills, inactive states, quiet dividers" },
+    "line":    { "hex": "#E0D8C9", "viet": "Viền",  "role": "Default 1px borders / hairlines on paper" },
+    "lineSoft":{ "hex": "#D8CFC0", "viet": "—",     "role": "Slightly stronger border (inputs, radii demo)" },
+    "ink":     { "hex": "#2B2440", "viet": "Mực",   "role": "Primary text; the dark reveal/interrogation canvas" },
+    "muted":   { "hex": "#6B6478", "viet": "Khói",  "role": "Secondary text, captions, helper copy" },
+    "faint":   { "hex": "#A89FB0", "viet": "—",     "role": "Tertiary text, disabled, dimmed draft text on ink" },
+    "indigo":  { "hex": "#5A4A86", "viet": "Chàm",  "role": "The mentor. Structure, links, focus ring, progress, secondary buttons" },
+    "indigoTint": { "hex": "#EAE6F0", "viet": "—",  "role": "Indigo surface: source chips, lang toggle, soft badges" },
+    "clay":    { "hex": "#C9583C", "viet": "Đất",   "role": "The earned change. Primary CTA, highlights, accent, active step" },
+    "clayTint":{ "hex": "#F6DFD7", "viet": "—",     "role": "Diff/added-text highlight background" },
+    "sage":    { "hex": "#4F7A63", "viet": "Lá",    "role": "Met criteria, strong-match band, positive resolve" },
+    "amber":   { "hex": "#B07D2B", "viet": "Nắng",  "role": "Competitive band, gaps to close, gentle caution flags" }
+  },
+
+  "semantic": {
+    "cta":            "clay",
+    "ctaText":        "paper",
+    "buttonSecondaryBorder": "ink",
+    "link":           "indigo",
+    "focusRing":      "indigo",
+    "stepActive":     "clay",
+    "stepDone":       "ink",
+    "stepUpcomingBorder": "line",
+    "fitBand": {
+      "strongMatch": { "fg": "#3A5C4B", "bg": "#E7EFE9", "border": "#4F7A63", "label": { "vi": "PHÙ HỢP TỐT", "en": "STRONG MATCH" } },
+      "competitive": { "fg": "#7E5814", "bg": "#F4ECDB", "border": "#B07D2B", "label": { "vi": "CẠNH TRANH", "en": "COMPETITIVE" } },
+      "reach":       { "fg": "#5A4A86", "bg": "#EAE6F0", "border": "#8579A8", "label": { "vi": "THÁCH THỨC", "en": "REACH" } }
+    },
+    "criteriaMet":   { "mark": "✓", "fg": "#4F7A63", "bg": "#E7EFE9" },
+    "criteriaUnmet": { "mark": "○", "fg": "#B07D2B", "bg": "#F4ECDB" },
+    "gapCallout":    { "bg": "#F4ECDB", "borderLeft": "#B07D2B", "text": "#5C420F", "label": "#7E5814" },
+    "diffAdded":     { "bg": "#F6DFD7", "underline": "#C9583C", "comment": "highlight for sentences that came from the student's own answers" },
+    "avatarSpeaking":{ "ring": "#5A4A86", "statusBg": "#EAE6F0", "statusFg": "#5A4A86" },
+    "avatarAwaiting":{ "statusBg": "#F4ECDB", "statusFg": "#7E5814" }
+  },
+
+  "typography": {
+    "families": {
+      "display": { "stack": "'Bricolage Grotesque', sans-serif", "google": "Bricolage Grotesque", "weights": [400,500,600,700,800], "use": "Headlines, stepper labels, the reveal, questions. Used with restraint.", "vietnamese": true },
+      "body":    { "stack": "'Be Vietnam Pro', sans-serif", "google": "Be Vietnam Pro", "weights": [300,400,500,600,700], "italic": true, "use": "Chat, prose, the SoP itself, all running text.", "vietnamese": true },
+      "utility": { "stack": "'IBM Plex Mono', monospace", "google": "IBM Plex Mono", "weights": [400,500,600], "use": "Labels, source chips, progress counts, data, eyebrows. Tracked uppercase.", "vietnamese": true }
+    },
+    "vietnameseRequirement": "All three faces MUST render stacked diacritics (ế ộ ữ ằ ị ẩ ợ) cleanly. Verified. Do not substitute a face that breaks them. Give marks room with line-height >= 1.3 on headings.",
+    "scale": [
+      { "token": "display-xl", "family": "display", "weight": 700, "size": 60, "lineHeight": 70, "letterSpacing": "-0.02em" },
+      { "token": "display-lg", "family": "display", "weight": 700, "size": 44, "lineHeight": 50, "letterSpacing": "-0.02em" },
+      { "token": "heading-1",  "family": "display", "weight": 600, "size": 34, "lineHeight": 38, "letterSpacing": "-0.02em", "note": "screen titles" },
+      { "token": "heading-2",  "family": "display", "weight": 600, "size": 24, "lineHeight": 30, "letterSpacing": "-0.01em", "note": "question text, card titles" },
+      { "token": "body-lg",    "family": "body",    "weight": 400, "size": 18, "lineHeight": 28 },
+      { "token": "body",       "family": "body",    "weight": 400, "size": 16, "lineHeight": 26 },
+      { "token": "body-sm",    "family": "body",    "weight": 400, "size": 14, "lineHeight": 22 },
+      { "token": "label-mono", "family": "utility", "weight": 500, "size": 12, "lineHeight": 16, "letterSpacing": "0.12em", "transform": "uppercase" }
+    ]
+  },
+
+  "spacing": {
+    "base": 4,
+    "comment": "4px scale. Names match Tailwind's default spacing keys.",
+    "scale": { "1": 4, "2": 8, "3": 12, "4": 16, "5": 20, "6": 24, "8": 32, "12": 48, "16": 64, "24": 96 }
+  },
+
+  "radii": {
+    "comment": "px. Map to Tailwind rounded-*.",
+    "sm": 4, "md": 8, "lg": 12, "xl": 16, "pill": 999, "full": "50%"
+  },
+
+  "shadow": {
+    "card":    "0 1px 3px rgba(0,0,0,0.08)",
+    "reveal":  "0 8px 30px rgba(201,88,60,0.12)",
+    "signature": "0 8px 30px rgba(90,74,134,0.14)"
+  },
+
+  "motion": {
+    "comment": "Deliberate, not decorative. Respect prefers-reduced-motion (disable all).",
+    "tokenStream":  "fade + 5px translateY, ~0.35s ease, for chat messages & rewrite tokens",
+    "fadeUp":       "fade + 10px translateY, 0.4s ease, on screen enter",
+    "avatarSpeakRing": "scale 0.92→1.5, opacity 0.55→0, 1.8s ease-out infinite, 2 rings offset 0.9s",
+    "avatarMouth":  "height 5↔13px, 0.34s ease-in-out infinite while speaking",
+    "avatarBlink":  "scaleY 1→0.12 at 96% of a 4s loop",
+    "progressBar":  "width transition 0.5s cubic-bezier(.4,0,.2,1)",
+    "typingDots":   "opacity 0.25↔1, 1.2s infinite, 3 dots staggered 0.2s",
+    "revealHighlight": "the one orchestrated moment: after a ~2s generating state, added spans light up (clayTint bg + clay underline)"
+  },
+
+  "tailwind": {
+    "comment": "Drop into tailwind.config.js theme.extend. Use font-display/body/mono utilities via fontFamily.",
+    "extend": {
+      "colors": {
+        "paper": "#F4F1EC", "surface": "#FBFAF7", "sand": "#E6DECF",
+        "line": "#E0D8C9", "line-soft": "#D8CFC0",
+        "ink": "#2B2440", "muted": "#6B6478", "faint": "#A89FB0",
+        "indigo": "#5A4A86", "indigo-tint": "#EAE6F0",
+        "clay": "#C9583C", "clay-tint": "#F6DFD7",
+        "sage": "#4F7A63", "amber": "#B07D2B"
+      },
+      "fontFamily": {
+        "display": ["Bricolage Grotesque", "sans-serif"],
+        "body": ["Be Vietnam Pro", "sans-serif"],
+        "mono": ["IBM Plex Mono", "monospace"]
+      },
+      "borderRadius": { "sm": "4px", "md": "8px", "lg": "12px", "xl": "16px" },
+      "boxShadow": {
+        "card": "0 1px 3px rgba(0,0,0,0.08)",
+        "reveal": "0 8px 30px rgba(201,88,60,0.12)",
+        "signature": "0 8px 30px rgba(90,74,134,0.14)"
+      }
+    }
+  }
+}

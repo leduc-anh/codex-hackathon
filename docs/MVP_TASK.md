@@ -8,19 +8,16 @@ Update this file the moment a task changes state. This file is the source of tru
 sessions. Never mark a P0 task `done` unless its PRD acceptance criteria are met. Commit this file with
 the code change that completes a task.
 
-## ⚠ Open dependency to confirm (resolve with human)
-- `search_criteria` needs a grounding source. Two options, both keep us to OpenAI+ElevenLabs only if you
-  pick the first: **(a)** OpenAI web-search tool (Responses API) → no extra vendor; **(b)** dedicated
-  search API (Exa/Tavily) → needs `SEARCH_API_KEY`. Either way every criterion MUST carry a source URL.
-  Default assumption until told otherwise: **(a)**.
+## Open dependency status
+- `search_criteria` uses OpenAI web search via the Responses API by default. Every criterion MUST carry a source URL. Live API verification passed with `LLM_API_KEY`.
 
 ## P0 — required for the demo (build in this order)
 - [ ] T-001 · — · — · Configure Vite + React + TypeScript strict + Tailwind project baseline · status: in_progress
 - [x] T-002 · — · — · Re-export locked `docs/contracts.ts` from `src/lib/contracts.ts`; strict mode on; no `any` · status: done
-- [x] T-003 · REQ-704 · — · Env setup + `.env.example`: `LLM_API_KEY`, `SEARCH_API_KEY`, optional `TTS_API_KEY`, Supabase keys, `AVATAR_REALTIME=false` · status: done
-- [ ] T-004 · REQ-653 · — · `/lib/llm/client.ts#callStructured`: OpenAI chat call with structured outputs/JSON mode → Zod validate → repair-once → degrade. Only LLM entrypoint. · status: todo
+- [x] T-003 · REQ-704 · — · Env setup + `.env.example`: `LLM_API_KEY`, optional `OPENAI_WEB_SEARCH_MODEL`, optional `OPENAI_RESPONSES_API_BASE`, optional `TTS_API_KEY`, Supabase keys, `AVATAR_REALTIME=false` · status: done
+- [x] T-004 · REQ-653 · — · `/lib/llm/client.ts#callStructured`: OpenAI-compatible chat call with structured JSON output → Zod validate → repair-once → degrade. Only LLM entrypoint. · status: done
 - [ ] T-005 · REQ-706 · — · `/lib/memory/state.ts`: `AgentState` + rolling summary; Stepper host with `ST_*` state machine · status: todo
-- [ ] T-006 · REQ-103,202 · SCR-01 · `/lib/tools/search_criteria.ts` (OpenAI web search by default) → `Criterion[]` with `sourceUrl`; `found=false` path · status: todo
+- [x] T-006 · REQ-103,202 · SCR-01 · `/lib/tools/search_criteria.ts` (OpenAI web search via `LLM_API_KEY` by default) → `Criterion[]` with `sourceUrl`; `found=false` path. · status: done
 - [ ] T-007 · REQ-201,652 · SCR-02 · `/lib/tools/score_fit.ts` pure TS rubric → `ScoreFitResult` (band + gaps, **NO %**, no LLM) · status: todo
 - [ ] T-008 · REQ-101..105 · SCR-01 · `/lib/agent/loop.ts` ReAct `runIntakeStep`; validate each `ReActStep`; cap at `MAX_AGENT_STEPS` · status: todo
 - [ ] T-009 · REQ-101,104 · SCR-01 · Intake chat UI → `runIntakeStep`; ends with profile + gaps summary card · status: todo

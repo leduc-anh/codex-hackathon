@@ -1,1 +1,1 @@
-export * from '../../docs/contracts'
+export * from '../../docs/contracts.ts'
