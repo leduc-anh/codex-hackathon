@@ -6,7 +6,7 @@ Current sprint: S1 · P0 done: 0%
 
 Completes: T-001, T-002, T-003
 
-Exit criterion: The locked Vite React TypeScript app shape exists, the single-page Stepper shell can hold ST_INTAKE through ST_RESULT, and all shared shapes import from contracts.ts instead of local redefinitions.
+Exit criterion: The locked Vite React TypeScript Tailwind app shape exists, the single-page Stepper shell can hold ST_INTAKE through ST_RESULT, and all shared shapes import from contracts.ts instead of local redefinitions.
 
 ## S2 2-4h: LLM Client + Tool Interfaces
 

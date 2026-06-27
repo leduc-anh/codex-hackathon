@@ -15,7 +15,7 @@ the code change that completes a task.
   Default assumption until told otherwise: **(a)**.
 
 ## P0 — required for the demo (build in this order)
-- [ ] T-001 · — · — · Configure Vite + React + TypeScript strict project baseline · status: in_progress
+- [ ] T-001 · — · — · Configure Vite + React + TypeScript strict + Tailwind project baseline · status: in_progress
 - [ ] T-002 · — · — · Copy `contracts.ts` into `/lib`; strict mode on; no `any` · status: todo
 - [ ] T-003 · REQ-704 · — · Env setup + `.env.example`: `OPENAI_API_KEY`, `ELEVENLABS_API_KEY` (+ `SEARCH_API_KEY` only if option b) · status: todo
 - [ ] T-004 · REQ-653 · — · `/lib/llm/client.ts#callStructured`: OpenAI chat call with structured outputs/JSON mode → Zod validate → repair-once → degrade. Only LLM entrypoint. · status: todo

@@ -26,7 +26,7 @@ intake (agent + tools) → draft → interrogation (avatar) → rewrite + before
 - Artifact in scope: **SoP only**. "Proposals", LoR, interview prep are out.
 
 ## 2. Locked technology stack [LOCKED]
-- **Frontend:** Vite + React + **TypeScript** + plain CSS for the MVP.
+- **Frontend:** Vite + React + **TypeScript** + Tailwind CSS.
 - **Backend:** No separate backend service in the MVP. Use typed client-side action modules under `src/lib/**`; any external LLM/search calls still go through the single wrapper and must degrade safely.
 - **Persistence:** Supabase (Postgres) via its client **OR** in-memory/session state for the demo. Choose ONE and stick to it. (For a pure demo, in-session is acceptable and faster.)
 - **LLM:** one frontier model via API (Claude or GPT-4-class). All intelligence is prompt-engineered. **No training, no fine-tuning.**
@@ -118,3 +118,4 @@ Run: `npm install && npm run dev`. Pre-warm the first LLM + search call before d
 ## 12. Decision Log
 - 2026-06-27 — Initialized contract. Locked: single SoP flow, Next.js+TS+Tailwind stack, 3-tool ReAct agent, code-computed `score_fit` (no LLM %), human-gated guideline learning (not federated), state+summary memory (no vector store in MVP). — Rationale: 24h / 1–2 devs; protect the demo and the anti-hallucination story.
 - 2026-06-27 — Unlocked stack from Next.js to Vite + React + TypeScript with plain CSS and no separate backend service. — Rationale: human approval; current repo is already Vite and the hackathon path favors fastest local iteration.
+- 2026-06-27 — Added Tailwind CSS to the locked Vite + React + TypeScript frontend stack. — Rationale: human instruction; utility CSS speeds P0 UI implementation.

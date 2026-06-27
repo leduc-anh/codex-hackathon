@@ -4,7 +4,7 @@ Update this file the moment a task changes state. This file is the source of tru
 
 ## P0
 
-- [ ] T-001 · REQ-101 · SCR-01 · Configure locked Vite React TypeScript project structure and single-page Stepper shell · status: in_progress
+- [ ] T-001 · REQ-101 · SCR-01 · Configure locked Vite React TypeScript Tailwind project structure and single-page Stepper shell · status: in_progress
 - [ ] T-002 · REQ-706 · SCR-01 · Wire AgentState working memory with in-session persistence and rolling summary field · status: todo
 - [ ] T-003 · REQ-653 · SCR-01 · Re-export contracts.ts and enforce Zod validation helpers at module boundaries · status: todo
 - [ ] T-004 · REQ-653 · SCR-01 · Build single LLM client wrapper with structured JSON output, one repair attempt, and graceful degradation · status: todo
