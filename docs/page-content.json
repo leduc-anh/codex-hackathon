@@ -26,10 +26,10 @@
 
   "scr01_intake": {
     "title":   { "vi": "Kể cho SoPilot nghe về bạn", "en": "Tell SoPilot about yourself" },
-    "subtitle":{ "vi": "Kể bất cứ điều gì về bạn: điểm số, câu lạc bộ, dự án bạn tự hào. Tiếng Việt hay tiếng Anh đều được.", "en": "Tell SoPilot about yourself: grades, clubs, that project you're proud of. Vietnamese or English, however it comes out." },
-    "inputPlaceholder": { "vi": "Dán bất cứ điều gì về bạn: điểm số, câu lạc bộ, dự án bạn tự hào…", "en": "Paste anything about you: grades, clubs, that project you're proud of…" },
+    "subtitle":{ "vi": "Chia sẻ bất kỳ điều gì giúp SoPilot hiểu bạn hơn. Có thể là điểm số, hoạt động ngoại khóa, dự án bạn từng làm hoặc một trải nghiệm đáng nhớ. Bạn có thể viết bằng tiếng Việt hoặc tiếng Anh.", "en": "Tell SoPilot about yourself: grades, clubs, that project you're proud of. Vietnamese or English, however it comes out." },
+    "inputPlaceholder": { "vi": "Viết hoặc dán thông tin về bạn tại đây...", "en": "Paste anything about you: grades, clubs, that project you're proud of…" },
     "messages": [
-      { "role": "agent", "label": "SoPilot", "text": "Chào Minh! Kể cho mình nghe bất cứ điều gì về bạn, không cần gọn gàng. Grades, clubs, a project, a bad day that taught you something. Tiếng Việt hay tiếng Anh đều được." },
+      { "role": "agent", "label": "SoPilot", "text": "Chào Minh! Cứ kể cho mình nghe về bạn theo cách tự nhiên nhất, không cần viết thật chỉn chu. Có thể là điểm số, câu lạc bộ, một dự án bạn từng làm, hay một trải nghiệm khiến bạn nhớ mãi. Tiếng Việt hay tiếng Anh đều được." },
       { "role": "user", "text": "mình học chuyên Lý, có giải nhì HSG tỉnh. mình làm 1 cái mạch cảm biến đo độ ẩm đất cho vườn rau của bà mình. tiếng anh mình hơi yếu phần viết." },
       { "role": "agent", "label": "SoPilot", "text": "Tuyệt, “vườn rau của bà” là một chi tiết quý đấy, mình giữ lại nhé. I pulled the Berkeley ME criteria so we can check your fit honestly.", "sources": ["berkeley.edu/me", "usnews.edu"] },
       { "role": "user", "text": "ok. mình cũng tham gia CLB robotics 2 năm, làm trưởng nhóm lập trình." },
