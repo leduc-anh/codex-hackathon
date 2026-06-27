@@ -48,6 +48,7 @@
     "profileCard": {
       "liveHeading": { "vi": "Hồ sơ thật", "en": "Live profile" },
       "itemsLabel": { "vi": "mục", "en": "items" },
+      "motivationLabel": { "vi": "Nguyện vọng", "en": "Motivation" },
       "noProgram": { "vi": "Chưa chọn ngành", "en": "No program selected" },
       "educationPending": { "vi": "Thông tin học tập sẽ hiện ở đây sau intake.", "en": "Education details will appear here after intake." },
       "gapHint": { "vi": "Cần bổ sung", "en": "Needs detail" },
@@ -72,6 +73,8 @@
     "subtitle":{ "vi": "Đánh giá thẳng thắn cho từng mục tiêu, kèm đúng phần cần cải thiện. Không dùng phần trăm giả, chỉ cho bạn thấy hiện đang ở đâu và nên làm gì tiếp.", "en": "A candid fit check for each target, with the next improvement clearly named. No fake percentages, just where you stand and what to do next." },
     "gapLabel": { "vi": "Cần bổ sung", "en": "To close the gap" },
     "noGap": { "vi": "Chưa thấy khoảng trống nghiêm trọng từ tiêu chí đã có nguồn.", "en": "No critical gap found from sourced criteria." },
+    "motivationLabel": { "vi": "Nguyện vọng", "en": "Motivation" },
+    "motivationPending": { "vi": "Chưa ghi nhận nguyện vọng cụ thể", "en": "No explicit motivation captured yet" },
     "targetProgramFallback": { "vi": "Chương trình mục tiêu", "en": "Target program" },
     "targetCountryPending": { "vi": "Quốc gia mục tiêu chưa rõ", "en": "Target country pending" },
     "sourcePrefix": { "vi": "nguồn", "en": "source" },
