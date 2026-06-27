@@ -15,12 +15,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@met4citizen/talkinghead": "^1.7.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "three": "^0.180.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/three": "^0.180.0",
     "@tailwindcss/vite": "^4.3.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

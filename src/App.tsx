@@ -770,15 +770,11 @@ function Avatar({ state, complete }: { state: State; complete: boolean }) {
           </>
         )}
         <div className="avatar-face">
-          <span className="hair" />
-          <span className="neck" />
-          <span className="face" />
-          <span className="glasses left" />
-          <span className="glasses right" />
-          <span className="bridge" />
-          <span className="eye left" />
-          <span className="eye right" />
-          <span className="mouth" />
+          <CoLinhAvatar
+            speakingText={content.scr04_interrogation.turns[state.turn]?.question.vi ?? null}
+            nextText={content.scr04_interrogation.turns[state.turn + 1]?.question.vi ?? null}
+            active={state.ttsOn && !complete}
+          />
         </div>
       </div>
       <h2>{content.scr04_interrogation.avatar.name}</h2>
