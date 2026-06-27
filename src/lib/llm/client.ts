@@ -7,6 +7,8 @@ export type StructuredLlmRequest = {
   model?: string
   temperature?: number
   maxTokens?: number
+  /** Data URLs (e.g. data:image/png;base64,...) for vision intake. */
+  images?: string[]
 }
 
 export type LlmTransportRequest = StructuredLlmRequest & {
@@ -20,8 +22,12 @@ export type LlmTransport = (request: LlmTransportRequest) => Promise<unknown>
 
 type OpenAiMessage = {
   role: 'system' | 'user'
-  content: string
+  content: string | OpenAiContentPart[]
 }
+
+type OpenAiContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string; detail?: 'low' | 'high' | 'auto' } }
 
 const DEFAULT_MODEL = 'gpt-4o-mini'
 const DEFAULT_OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions'
@@ -106,9 +112,22 @@ function buildMessages(request: LlmTransportRequest): OpenAiMessage[] {
     request.system ??
     'Return only valid JSON. Do not include markdown, prose, or code fences.'
 
+  const userContent: string | OpenAiContentPart[] =
+    request.images && request.images.length > 0
+      ? [
+          { type: 'text', text: request.prompt },
+          ...request.images.map(
+            (url): OpenAiContentPart => ({
+              type: 'image_url',
+              image_url: { url, detail: 'auto' },
+            }),
+          ),
+        ]
+      : request.prompt
+
   return [
     { role: 'system', content: system },
-    { role: 'user', content: request.prompt },
+    { role: 'user', content: userContent },
   ]
 }
 

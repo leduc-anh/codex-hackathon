@@ -4,7 +4,7 @@ import {
   type Draft,
   type InterrogationSession,
   type Profile,
-} from '../contracts'
+} from '../contracts.ts'
 
 const STORAGE_KEY = 'sopilot.agentState'
 
