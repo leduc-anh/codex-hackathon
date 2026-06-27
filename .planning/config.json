@@ -1,0 +1,9 @@
+{
+  "project_code": "SOPILOT",
+  "commit_docs": false,
+  "workflow": {
+    "discuss_mode": "discuss",
+    "plan_review_convergence": false
+  },
+  "runtime": "codex"
+}

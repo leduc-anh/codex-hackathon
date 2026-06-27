@@ -30,7 +30,7 @@ intake (agent + tools) → draft → interrogation (avatar) → rewrite + before
 - **Backend:** No separate backend service in the MVP. Use typed client-side action modules under `src/lib/**`; any external LLM/search calls still go through the single wrapper and must degrade safely.
 - **Persistence:** Supabase (Postgres) via its client **OR** in-memory/session state for the demo. Choose ONE and stick to it. (For a pure demo, in-session is acceptable and faster.)
 - **LLM:** one frontier model via API (Claude or GPT-4-class). All intelligence is prompt-engineered. **No training, no fine-tuning.**
-- **Search grounding:** one hosted web-search API (Exa / Tavily / Serper / Brave). **Not** a self-hosted vector DB.
+- **Search grounding:** OpenAI web search via the Responses API. **Not** a self-hosted vector DB.
 - **Voice/Avatar:** TTS (browser SpeechSynthesis or ElevenLabs) + a lightweight animated face. A real talking-head API (HeyGen/D-ID/Simli) is **optional, behind a flag**, and never on the demo critical path.
 - **Validation:** **Zod** (runtime validation of all LLM output and tool I/O).
 - Allowed extra libs: none beyond the above without a §10 change. No state-management lib (use React state + the typed state object). No ORM (use Supabase client or in-memory).
@@ -112,10 +112,11 @@ Anything not on this path is secondary. Ship the path first, polish later.
 - The agent must surface trade-offs and time cost before any unlock, and must not unlock something just because it would be "nicer."
 
 ## 11. Env / runbook (brief)
-Required env vars: `LLM_API_KEY`, `SEARCH_API_KEY`, (optional) `TTS_API_KEY`, (optional) `SUPABASE_URL` + `SUPABASE_ANON_KEY`, `AVATAR_REALTIME=false` (feature flag, default off).
+Required env vars: `LLM_API_KEY` (LLM + OpenAI web search), (optional) `OPENAI_WEB_SEARCH_MODEL`, (optional) `OPENAI_RESPONSES_API_BASE`, (optional) `TTS_API_KEY`, (optional) `SUPABASE_URL` + `SUPABASE_ANON_KEY`, `AVATAR_REALTIME=false` (feature flag, default off).
 Run: `npm install && npm run dev`. Pre-warm the first LLM + search call before demoing. Seed the demo persona ("Minh") so no long typing happens live.
 
 ## 12. Decision Log
 - 2026-06-27 — Initialized contract. Locked: single SoP flow, Next.js+TS+Tailwind stack, 3-tool ReAct agent, code-computed `score_fit` (no LLM %), human-gated guideline learning (not federated), state+summary memory (no vector store in MVP). — Rationale: 24h / 1–2 devs; protect the demo and the anti-hallucination story.
 - 2026-06-27 — Unlocked stack from Next.js to Vite + React + TypeScript with plain CSS and no separate backend service. — Rationale: human approval; current repo is already Vite and the hackathon path favors fastest local iteration.
 - 2026-06-27 — Added Tailwind CSS to the locked Vite + React + TypeScript frontend stack. — Rationale: human instruction; utility CSS speeds P0 UI implementation.
+- 2026-06-27 — Changed search grounding from a separate hosted web-search vendor key to OpenAI web search via the Responses API. — Rationale: human instruction; one OpenAI API key simplifies the hackathon setup.

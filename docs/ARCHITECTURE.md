@@ -17,7 +17,7 @@ flowchart TB
   AGENT --> T1["search_criteria"]
   AGENT --> T2["score_fit (pure TS)"]
   AGENT --> T3["log_feedback"]
-  T1 --> SAPI["Web Search API (Exa/Tavily/Serper)"]
+  T1 --> SAPI["OpenAI Web Search (Responses API)"]
   FE --> TTS["TTS / Avatar (degradable)"]
   API --> DB[("State store: in-session OR Supabase")]
   MENTOR["Mentor (Prod)"] -.approves.-> GB[("Guideline bank")]
@@ -142,7 +142,7 @@ Implemented once in `/lib/llm/client.ts` as `callStructured(schema, prompt)`. No
 | App shape | Single-page Stepper | No routing overhead; demo never "dead-navigates" | Multi-route app |
 | Action layer | Vite client-side action modules | One codebase, one dev moves fast | Separate API service |
 | Fit scoring | Deterministic TS rubric | Honest, explainable, un-hallucinatable | LLM-generated % |
-| Grounding | Hosted search + citations | Buildable in minutes; sources kill hallucination | Self-hosted RAG/vector DB |
+| Grounding | OpenAI web search + citations | One API key, buildable in minutes; sources kill hallucination | Self-hosted RAG/vector DB |
 | Learning | Mentor-gated guideline injection | Real "improves from feedback", human-safe | Federated learning / self-rewrite |
 | Memory | State object + rolling summary | Cheap, reliable, in-budget | Vector memory store |
 | Avatar | TTS + light animation | 90% wow, 10% risk | Real-time talking head on critical path |
