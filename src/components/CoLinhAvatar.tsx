@@ -4,8 +4,7 @@
 //   3D + voice → (3D fails) audio only → (TTS fails) silent, text stays on screen.
 // Prop-driven so it slots into App.tsx's reducer-based screen.
 
-import { useEffect, useRef, useState } from 'react'
-import { LipsyncEn } from '@met4citizen/talkinghead/modules/lipsync-en.mjs'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { synthesize, estimateWordTimings, type SynthResult } from '../lib/tts'
 
 const AVATAR_URL = '/avatars/brunette.glb'
@@ -45,9 +44,18 @@ export default function CoLinhAvatar({
   useEffect(() => {
     let cancelled = false
     let head: { stop: () => void } | null = null
+    let timer = 0
+    const schedule = window.requestIdleCallback ?? window.setTimeout
+    const cancelSchedule = window.cancelIdleCallback ?? window.clearTimeout
+
     ;(async () => {
       try {
+        await new Promise<void>((resolve) => {
+          timer = schedule(() => resolve(), { timeout: 450 })
+        })
+        if (cancelled || !mountRef.current) return
         const { TalkingHead } = await import('@met4citizen/talkinghead')
+        const { LipsyncEn } = await import('@met4citizen/talkinghead/modules/lipsync-en.mjs')
         if (cancelled || !mountRef.current) return
         const h = new TalkingHead(mountRef.current, {
           // [] on purpose: TalkingHead loads lipsync modules via a runtime dynamic import()
@@ -80,6 +88,7 @@ export default function CoLinhAvatar({
     })()
     return () => {
       cancelled = true
+      if (timer) cancelSchedule(timer)
       try {
         head?.stop()
       } catch {
@@ -105,7 +114,7 @@ export default function CoLinhAvatar({
     return () => document.removeEventListener('visibilitychange', onVis)
   }, [])
 
-  const getSynth = (text: string): Promise<SynthResult> => {
+  const getSynth = useCallback((text: string): Promise<SynthResult> => {
     let p = cacheRef.current.get(text)
     if (!p) {
       p = synthesize(text).catch((e) => {
@@ -115,9 +124,9 @@ export default function CoLinhAvatar({
       cacheRef.current.set(text, p)
     }
     return p
-  }
+  }, [])
 
-  async function playAudioOnly(audio: ArrayBuffer) {
+  const playAudioOnly = useCallback(async (audio: ArrayBuffer) => {
     const blob = new Blob([audio], { type: 'audio/mpeg' })
     const url = URL.createObjectURL(blob)
     fallbackAudioRef.current?.pause()
@@ -128,9 +137,9 @@ export default function CoLinhAvatar({
       console.error('[CoLinhAvatar] fallback audio play failed:', e)
       URL.revokeObjectURL(url)
     })
-  }
+  }, [])
 
-  async function speak(text: string) {
+  const speak = useCallback(async (text: string) => {
     let result: SynthResult
     try {
       result = await getSynth(text)
@@ -157,7 +166,7 @@ export default function CoLinhAvatar({
       }
     }
     await playAudioOnly(result.audio)
-  }
+  }, [getSynth, playAudioOnly])
 
   // Speak the current question when active. Wait until the avatar is ready (or has failed,
   // in which case we still play audio). De-dupe by text so re-renders don't repeat it.
@@ -167,8 +176,7 @@ export default function CoLinhAvatar({
     if (lastSpokenRef.current === speakingText) return
     lastSpokenRef.current = speakingText
     void speak(speakingText)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speakingText, active, ready, failed])
+  }, [speakingText, active, ready, failed, speak])
 
   // Let the same question be re-spoken if the user toggles voice off then on.
   useEffect(() => {
@@ -178,8 +186,7 @@ export default function CoLinhAvatar({
   // Pre-warm the next question's audio.
   useEffect(() => {
     if (nextText) void getSynth(nextText).catch(() => {})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nextText])
+  }, [nextText, getSynth])
 
   return (
     <div ref={mountRef} className="avatar-3d-mount">

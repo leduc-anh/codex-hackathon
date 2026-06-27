@@ -1,4 +1,4 @@
-import { useReducer } from 'react'
+import { Suspense, lazy, useReducer } from 'react'
 import copy from '../docs/page-content.json'
 import {
   canJumpToScreen,
@@ -28,6 +28,7 @@ type Screen = 0 | 1 | 2 | 3 | 4
 type Busy = 'idle' | 'intake' | 'draft' | 'interrogation' | 'rewrite'
 type Lang = 'vi' | 'en'
 type Bilingual = { vi: string; en: string }
+type CoachingMode = 'interview' | 'feedback'
 
 type Message = {
   role: 'agent' | 'user'
@@ -50,6 +51,7 @@ type State = {
   rewrite: RewriteResult | null
   answerInput: string
   ttsOn: boolean
+  coachingMode: CoachingMode
   lang: Lang
   busy: Busy
   error: string
@@ -69,6 +71,7 @@ type Action =
   | { type: 'startDraft' }
   | { type: 'finishDraft'; draft: Draft }
   | { type: 'setAnswerInput'; value: string }
+  | { type: 'setCoachingMode'; mode: CoachingMode }
   | { type: 'startInterrogation'; draft: Draft }
   | { type: 'finishInterrogation'; session: InterrogationSession; done: boolean }
   | { type: 'startRewrite' }
@@ -80,6 +83,7 @@ type Action =
 
 const content = copy as typeof copy
 const steps = content.global.stepper
+const CoLinhAvatar = lazy(() => import('./components/CoLinhAvatar'))
 
 function t(value: Bilingual, lang: Lang) {
   return value[lang]
@@ -114,6 +118,7 @@ const initialState: State = {
   rewrite: null,
   answerInput: '',
   ttsOn: true,
+  coachingMode: 'feedback',
   lang: 'vi',
   busy: 'idle',
   error: '',
@@ -227,6 +232,8 @@ function reducer(state: State, action: Action): State {
       }
     case 'setAnswerInput':
       return { ...state, answerInput: action.value, error: '' }
+    case 'setCoachingMode':
+      return { ...state, coachingMode: action.mode, error: '' }
     case 'startInterrogation':
       return {
         ...state,
@@ -372,6 +379,22 @@ function TypingDots({ lang }: { lang: Lang }) {
       <span />
       <span />
     </span>
+  )
+}
+
+function StaticAvatarFace() {
+  return (
+    <>
+      <span className="hair" />
+      <span className="neck" />
+      <span className="face" />
+      <span className="glasses left" />
+      <span className="glasses right" />
+      <span className="bridge" />
+      <span className="eye left" />
+      <span className="eye right" />
+      <span className="mouth" />
+    </>
   )
 }
 
@@ -753,9 +776,19 @@ function DraftScreen({
   )
 }
 
-function Avatar({ state, complete }: { state: State; complete: boolean }) {
+function Avatar({
+  state,
+  complete,
+  speakingText,
+  nextText,
+}: {
+  state: State
+  complete: boolean
+  speakingText: string | null
+  nextText: string | null
+}) {
   const lang = state.lang
-  const speaking = state.ttsOn && !complete
+  const speaking = state.ttsOn && !complete && state.coachingMode === 'interview'
   const status = speaking
     ? content.scr04_interrogation.status.speaking
     : content.scr04_interrogation.status.awaiting
@@ -770,11 +803,13 @@ function Avatar({ state, complete }: { state: State; complete: boolean }) {
           </>
         )}
         <div className="avatar-face">
-          <CoLinhAvatar
-            speakingText={content.scr04_interrogation.turns[state.turn]?.question.vi ?? null}
-            nextText={content.scr04_interrogation.turns[state.turn + 1]?.question.vi ?? null}
-            active={state.ttsOn && !complete}
-          />
+          {speaking ? (
+            <Suspense fallback={<StaticAvatarFace />}>
+              <CoLinhAvatar speakingText={speakingText} nextText={nextText} active={speaking} />
+            </Suspense>
+          ) : (
+            <StaticAvatarFace />
+          )}
         </div>
       </div>
       <h2>{content.scr04_interrogation.avatar.name}</h2>
@@ -783,6 +818,32 @@ function Avatar({ state, complete }: { state: State; complete: boolean }) {
         <span />
         {t(status, lang)}
       </span>
+    </div>
+  )
+}
+
+function ModeSwitch({ mode, dispatch, lang }: { mode: CoachingMode; dispatch: React.Dispatch<Action>; lang: Lang }) {
+  const feedback = lang === 'vi' ? 'Nhận xét sơ qua' : 'Quick read'
+  const interview = lang === 'vi' ? 'Phỏng vấn' : 'Interview'
+
+  return (
+    <div className="mode-switch" aria-label={lang === 'vi' ? 'Chọn chế độ huấn luyện' : 'Choose coaching mode'}>
+      <button
+        className={mode === 'feedback' ? 'active' : ''}
+        onClick={() => dispatch({ type: 'setCoachingMode', mode: 'feedback' })}
+        type="button"
+      >
+        {feedback}
+        <span>{lang === 'vi' ? 'Quick read' : 'Nhận xét sơ qua'}</span>
+      </button>
+      <button
+        className={mode === 'interview' ? 'active' : ''}
+        onClick={() => dispatch({ type: 'setCoachingMode', mode: 'interview' })}
+        type="button"
+      >
+        {interview}
+        <span>{lang === 'vi' ? 'Interview' : 'Phỏng vấn'}</span>
+      </button>
     </div>
   )
 }
@@ -814,6 +875,54 @@ function SpotlightDraft({ draft, target }: { draft: string; target: string }) {
   )
 }
 
+function QuickFeedbackPanel({
+  session,
+  draft,
+  lang,
+  dispatch,
+}: {
+  session: InterrogationSession
+  draft: Draft
+  lang: Lang
+  dispatch: React.Dispatch<Action>
+}) {
+  return (
+    <div className="interrogate-work">
+      <Card dark className="question-card feedback-summary-card">
+        <span className="eyebrow">{lang === 'vi' ? 'Nhận xét sơ qua' : 'Quick read'}</span>
+        <h1>
+          {lang === 'vi'
+            ? 'Bản nháp đang có ý tốt, nhưng cần bằng chứng cá nhân rõ hơn.'
+            : 'The draft has a useful direction, but needs clearer personal evidence.'}
+        </h1>
+        <p>
+          {lang === 'vi'
+            ? 'Chế độ này không tải avatar 3D hay gọi TTS, nên mở nhanh để xem các điểm cần đào sâu trước.'
+            : 'This mode skips the 3D avatar and TTS, so it opens quickly for a first-pass review.'}
+        </p>
+      </Card>
+      <div className="feedback-list">
+        {session.turns.map((item) => (
+          <Card className="feedback-item" key={`${item.index}-${item.targetSentence}`}>
+            <div>
+              <span>{item.index + 1}</span>
+              <strong>{item.framingTag}</strong>
+            </div>
+            <p>{item.targetSentence}</p>
+            <small>{item.question}</small>
+          </Card>
+        ))}
+      </div>
+      <SpotlightDraft draft={draft.body} target={session.turns.at(-1)?.targetSentence ?? draft.body} />
+      <div className="footer-action">
+        <Button onClick={() => dispatch({ type: 'setCoachingMode', mode: 'interview' })}>
+          {lang === 'vi' ? 'Bắt đầu phỏng vấn' : 'Start interview'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 function InterrogationScreen({
   state,
   onAnswer,
@@ -830,6 +939,8 @@ function InterrogationScreen({
   const lang = state.lang
   const interrogation = content.scr04_interrogation
   const turn = session?.turns.find((item) => !item.answer) ?? session?.turns.at(-1)
+  const nextTurn =
+    session && turn ? session.turns.find((item) => !item.answer && item.index > turn.index) : null
   const complete = Boolean(session && session.turns.every((item) => item.answer))
 
   if (!session || !draft || !turn) {
@@ -844,7 +955,12 @@ function InterrogationScreen({
   return (
     <div className="interrogation-grid">
       <div>
-        <Avatar complete={complete} state={state} />
+        <Avatar
+          complete={complete}
+          nextText={nextTurn?.question ?? null}
+          speakingText={turn.question}
+          state={state}
+        />
         <Button onClick={() => dispatch({ type: 'toggleTts' })} variant="secondary">
           {state.ttsOn
             ? t(interrogation.ttsToggle.on, lang)
@@ -865,8 +981,14 @@ function InterrogationScreen({
             {t(interrogation.complete.cta, lang)}
           </Button>
         </Card>
+      ) : state.coachingMode === 'feedback' ? (
+        <div>
+          <ModeSwitch dispatch={dispatch} lang={lang} mode={state.coachingMode} />
+          <QuickFeedbackPanel dispatch={dispatch} draft={draft} lang={lang} session={session} />
+        </div>
       ) : (
         <div className="interrogate-work">
+          <ModeSwitch dispatch={dispatch} lang={lang} mode={state.coachingMode} />
           <div className="turn-row">
             <span>
               {t(interrogation.turnLabel, lang)} {turn.index + 1} / 4

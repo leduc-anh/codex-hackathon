@@ -120,3 +120,4 @@ Run: `npm install && npm run dev`. Pre-warm the first LLM + search call before d
 - 2026-06-27 — Unlocked stack from Next.js to Vite + React + TypeScript with plain CSS and no separate backend service. — Rationale: human approval; current repo is already Vite and the hackathon path favors fastest local iteration.
 - 2026-06-27 — Added Tailwind CSS to the locked Vite + React + TypeScript frontend stack. — Rationale: human instruction; utility CSS speeds P0 UI implementation.
 - 2026-06-27 — Changed search grounding from a separate hosted web-search vendor key to OpenAI web search via the Responses API. — Rationale: human instruction; one OpenAI API key simplifies the hackathon setup.
+- 2026-06-27 — Unlocked dependencies `@met4citizen/talkinghead`, `three`, and `@types/three` for the SCR-04 avatar. — Rationale: explicit human approval; 3D avatar is part of the demo coaching experience.
