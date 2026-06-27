@@ -16,8 +16,8 @@ the code change that completes a task.
 
 ## P0 — required for the demo (build in this order)
 - [ ] T-001 · — · — · Configure Vite + React + TypeScript strict + Tailwind project baseline · status: in_progress
-- [ ] T-002 · — · — · Copy `contracts.ts` into `/lib`; strict mode on; no `any` · status: todo
-- [ ] T-003 · REQ-704 · — · Env setup + `.env.example`: `OPENAI_API_KEY`, `ELEVENLABS_API_KEY` (+ `SEARCH_API_KEY` only if option b) · status: todo
+- [x] T-002 · — · — · Re-export locked `docs/contracts.ts` from `src/lib/contracts.ts`; strict mode on; no `any` · status: done
+- [x] T-003 · REQ-704 · — · Env setup + `.env.example`: `LLM_API_KEY`, `SEARCH_API_KEY`, optional `TTS_API_KEY`, Supabase keys, `AVATAR_REALTIME=false` · status: done
 - [ ] T-004 · REQ-653 · — · `/lib/llm/client.ts#callStructured`: OpenAI chat call with structured outputs/JSON mode → Zod validate → repair-once → degrade. Only LLM entrypoint. · status: todo
 - [ ] T-005 · REQ-706 · — · `/lib/memory/state.ts`: `AgentState` + rolling summary; Stepper host with `ST_*` state machine · status: todo
 - [ ] T-006 · REQ-103,202 · SCR-01 · `/lib/tools/search_criteria.ts` (OpenAI web search by default) → `Criterion[]` with `sourceUrl`; `found=false` path · status: todo

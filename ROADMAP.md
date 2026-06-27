@@ -1,6 +1,6 @@
 ## Status
 
-Current sprint: S1 · P0 done: 0%
+Current sprint: S1 · P0 done: 7%
 
 ## S1 0-2h: Vite Scaffold + Contracts Wiring
 
