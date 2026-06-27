@@ -19,8 +19,7 @@ export type SearchCriteriaOptions = {
 };
 
 const DEFAULT_MAX_RESULTS = 5;
-const DEFAULT_OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
-const DEFAULT_OPENAI_RESPONSES_PROXY_URL = "/api/openai/v1/responses";
+const RESPONSES_PATH = "/v1/responses";
 
 export async function searchCriteria(
   input: SearchCriteriaInput,
@@ -51,9 +50,6 @@ export async function openAiWebSearchProvider(
   if (!canCallOpenAi()) {
     return [];
   }
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
 
   const response = await openAiPostJson(
     RESPONSES_PATH,
@@ -300,29 +296,6 @@ function inferCriterionName(text: string): string {
   }
 
   return "Admission criteria";
-}
-
-function readEnv(name: string): string | undefined {
-  const importMetaEnv = (
-    import.meta as ImportMeta & {
-      env?: Record<string, string | undefined>;
-    }
-  ).env;
-  const globalProcess = (
-    globalThis as unknown as {
-      process?: { env?: Record<string, string | undefined> };
-    }
-  ).process;
-
-  return importMetaEnv?.[name] ?? globalProcess?.env?.[name];
-}
-
-function isBrowser(): boolean {
-  return typeof window !== "undefined";
-}
-
-function isRelativeUrl(url: string): boolean {
-  return url.startsWith("/");
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

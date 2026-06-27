@@ -386,7 +386,6 @@ function makeId(prefix: string): string {
 export function canJumpToScreen(
   screen: number,
   state: AgentState,
-  _fit?: ScoreFitResult | null,
 ): boolean {
   if (screen <= 1) {
     return true

@@ -36,7 +36,6 @@ type OpenAiContentPart =
 
 const DEFAULT_MODEL = 'gpt-4o-mini'
 const CHAT_COMPLETIONS_PATH = '/v1/chat/completions'
-const DEFAULT_OPENAI_CHAT_PROXY_URL = '/api/openai/v1/chat/completions'
 
 export async function callStructured<T>(
   schema: z.ZodType<T>,
@@ -80,28 +79,15 @@ export async function callStructured<T>(
 export async function defaultOpenAiChatTransport(
   request: LlmTransportRequest,
 ): Promise<unknown> {
-  const apiKey = readEnv('LLM_API_KEY')
-  const endpoint =
-    readEnv('LLM_API_BASE') ?? (isBrowser() ? DEFAULT_OPENAI_CHAT_PROXY_URL : DEFAULT_OPENAI_CHAT_URL)
-
-  if (!apiKey && !isRelativeUrl(endpoint)) {
+  if (!canCallOpenAi()) {
     throw new Error('Missing LLM_API_KEY')
   }
 
   const model = request.model ?? readEnv('LLM_MODEL') ?? DEFAULT_MODEL
   const messages = buildMessages(request)
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  }
-
-  if (apiKey) {
-    headers.Authorization = `Bearer ${apiKey}`
-  }
-
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
+  const response = await openAiPostJson(
+    CHAT_COMPLETIONS_PATH,
+    {
       model,
       messages,
       temperature: request.temperature ?? 0.2,
@@ -226,14 +212,6 @@ function extractJsonText(raw: string): string {
   }
 
   return raw.trim()
-}
-
-function isBrowser(): boolean {
-  return typeof window !== 'undefined'
-}
-
-function isRelativeUrl(url: string): boolean {
-  return url.startsWith('/')
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
