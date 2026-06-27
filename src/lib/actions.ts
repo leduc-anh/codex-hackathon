@@ -21,7 +21,11 @@ export {
   type FileIntakeResult,
   type IntakeFilePayload,
 } from './agent/file-intake.ts'
-export { runMockDemoIntake } from './demo/mock-intake.ts'
+export {
+  runMockDemoIntake,
+  runMockDemoIntake as runMinhSeedIntake,
+} from './demo/mock-intake.ts'
+export { minhSeedUserMessage } from './demo/minh-profile.ts'
 import { callStructured, type LlmTransport } from './llm/client.ts'
 import { scoreFit } from './tools/score_fit.ts'
 export { fail, ok, validateInput, type ActionResult, type ErrorCode } from './result.ts'
@@ -379,7 +383,11 @@ function makeId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-export function canJumpToScreen(screen: number, state: AgentState): boolean {
+export function canJumpToScreen(
+  screen: number,
+  state: AgentState,
+  _fit?: ScoreFitResult | null,
+): boolean {
   if (screen <= 1) {
     return true
   }

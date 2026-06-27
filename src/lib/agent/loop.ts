@@ -14,6 +14,7 @@ import {
   type ScoreFitResult,
 } from '../contracts.ts'
 import { callStructured, type LlmTransport } from '../llm/client.ts'
+import { detectUserLanguage, type UserLanguage } from '../language.ts'
 import { appendRollingSummary, updateAgentState } from '../memory/state.ts'
 import { fail, ok, validateInput, type ActionResult } from '../result.ts'
 import { searchCriteria, type SearchCriteriaOptions } from '../tools/search_criteria.ts'
@@ -30,6 +31,7 @@ export type IntakeResult = {
 export type RunIntakeInput = {
   state: AgentState
   userMessage: string | null
+  preferredLanguage?: UserLanguage
 }
 
 export type RunIntakeOptions = {
@@ -40,6 +42,7 @@ export type RunIntakeOptions = {
 const zRunIntakeInput = z.object({
   state: zAgentState,
   userMessage: z.string().nullable(),
+  preferredLanguage: z.enum(['vi', 'en']).optional(),
 })
 
 const zIntakeExtraction = z.object({
@@ -64,6 +67,11 @@ export async function runIntakeStep(
     return fail('VALIDATION', 'A user message is required before running intake.')
   }
 
+  const responseLanguage = detectUserLanguage(
+    userMessage,
+    validated.data.preferredLanguage ?? 'en',
+  )
+
   const extracted = await callStructured(
     zIntakeExtraction,
     {
@@ -72,10 +80,13 @@ export async function runIntakeStep(
         'Return JSON only.',
         'Extract only facts stated by the student or already present in state.',
         'Do not invent scores, admissions facts, schools, awards, or personal details.',
+        `The latest message is ${responseLanguage === 'vi' ? 'Vietnamese or Vinglish' : 'English'}. Write assistantMessage and shortlistSummary only in ${responseLanguage === 'vi' ? 'Vietnamese' : 'English'}.`,
+        'Match the user language naturally; do not add a translation unless asked.',
       ].join('\n'),
       prompt: JSON.stringify({
         task:
-          'Merge the user message into the AgentState profile. Add gapFlags for missing role, impact, target school/program, English score, or motivation details. Keep the assistantMessage short and useful.',
+          'Merge the user message into the AgentState profile. Add gapFlags for missing role, contribution, impact, target school/program, English score, education, or motivation details. In assistantMessage, briefly acknowledge the new concrete detail, then ask exactly one useful follow-up question. Choose the most relevant scenario: target missing; education/GPA missing; no activity; role missing; personal contribution missing; measurable impact missing; English-test evidence missing; motivation vague; message unclear/off-topic; or profile complete. Do not repeat a question already answered in previousState. Keep it conversational and specific.',
+        responseLanguage,
         previousState: validated.data.state,
         userMessage,
       }),
@@ -95,10 +106,55 @@ export async function runIntakeStep(
     `Student said: ${userMessage}`,
     extracted.ok
       ? extracted.data.assistantMessage
-      : 'I captured the usable profile facts and marked the missing evidence. I could not reach the live LLM, so I updated your profile with local extraction.',
+      : buildFallbackAssistantMessage(profile, responseLanguage),
     extracted.ok ? extracted.data.shortlistSummary : undefined,
     options,
   )
+}
+
+function buildFallbackAssistantMessage(profile: Profile, language: UserLanguage): string {
+  const incompleteActivity = profile.activities.find(
+    (activity) => !activity.role || !activity.contribution || !activity.impact,
+  )
+
+  if (!profile.targetProgram) {
+    return language === 'vi'
+      ? 'Mình đã ghi nhận thông tin bạn vừa chia sẻ. Bạn đang nhắm tới trường hoặc ngành học cụ thể nào?'
+      : 'I captured what you shared. Which specific school or program are you targeting?'
+  }
+  if (!profile.education) {
+    return language === 'vi'
+      ? 'Mình đã ghi nhận mục tiêu của bạn. Bạn có thể chia sẻ bậc học hiện tại, GPA hoặc các môn nổi bật không?'
+      : 'I captured your target. What is your current education level, GPA, or strongest coursework?'
+  }
+  if (profile.activities.length === 0) {
+    return language === 'vi'
+      ? 'Phần học tập đã rõ hơn rồi. Hoạt động hoặc dự án nào thể hiện rõ nhất năng lực của riêng bạn?'
+      : 'Your academic context is clearer now. Which activity or project best shows your own ability?'
+  }
+  if (incompleteActivity && !incompleteActivity.role) {
+    return language === 'vi'
+      ? 'Mình đã ghi nhận hoạt động này. Vai trò cụ thể của bạn trong đó là gì?'
+      : 'I captured that activity. What was your specific role in it?'
+  }
+  if (incompleteActivity && !incompleteActivity.contribution) {
+    return language === 'vi'
+      ? 'Vai trò đã rõ hơn. Phần việc nào là do chính bạn trực tiếp thực hiện?'
+      : 'Your role is clearer. What did you personally build, decide, or carry out?'
+  }
+  if (incompleteActivity && !incompleteActivity.impact) {
+    return language === 'vi'
+      ? 'Mình đã hiểu phần đóng góp của bạn. Kết quả cụ thể hoặc ai đã được hưởng lợi từ việc đó?'
+      : 'I understand your contribution. What concrete result followed, or who benefited from it?'
+  }
+  if (!profile.motivations) {
+    return language === 'vi'
+      ? 'Các bằng chứng chính đã khá rõ. Trải nghiệm nào khiến bạn thật sự muốn theo đuổi ngành này?'
+      : 'The main evidence is taking shape. What experience made you genuinely want to pursue this field?'
+  }
+  return language === 'vi'
+    ? 'Mình đã cập nhật hồ sơ. Bạn có thể bổ sung điểm tiếng Anh hoặc một kết quả đo lường được gần đây không?'
+    : 'I updated your profile. Can you add an English-test score or one recent measurable result?'
 }
 
 export async function finalizeIntakeFromProfile(
