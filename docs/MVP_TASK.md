@@ -15,7 +15,7 @@ the code change that completes a task.
   Default assumption until told otherwise: **(a)**.
 
 ## P0 — required for the demo (build in this order)
-- [ ] T-001 · — · — · Scaffold Next.js (App Router) + TypeScript strict + Tailwind · status: todo
+- [ ] T-001 · — · — · Configure Vite + React + TypeScript strict project baseline · status: in_progress
 - [ ] T-002 · — · — · Copy `contracts.ts` into `/lib`; strict mode on; no `any` · status: todo
 - [ ] T-003 · REQ-704 · — · Env setup + `.env.example`: `OPENAI_API_KEY`, `ELEVENLABS_API_KEY` (+ `SEARCH_API_KEY` only if option b) · status: todo
 - [ ] T-004 · REQ-653 · — · `/lib/llm/client.ts#callStructured`: OpenAI chat call with structured outputs/JSON mode → Zod validate → repair-once → degrade. Only LLM entrypoint. · status: todo
@@ -26,7 +26,7 @@ the code change that completes a task.
 - [ ] T-009 · REQ-101,104 · SCR-01 · Intake chat UI → `runIntakeStep`; ends with profile + gaps summary card · status: todo
 - [ ] T-010 · REQ-201,202 · SCR-02 · Shortlist & Fit UI: band, `CriterionCheck`s, gaps, clickable sources + score-explanation prompt · status: todo
 - [ ] T-011 · REQ-301,302 · SCR-03 · `scaffoldDraft` action + Draft workspace (paste OR AI-scaffold, invents nothing) · status: todo
-- [ ] T-012 · REQ-401,402 · SCR-04 · `nextInterrogationTurn` action + interrogation UI (text path first) · status: todo
+- [ ] T-012 · REQ-401,402 · SCR-04 · `nextInterrogationTurn` action module + interrogation UI (text path first) · status: todo
 - [ ] T-013 · REQ-403 · SCR-04 · ElevenLabs streaming TTS: avatar speaks each question; **text-only fallback** on failure · status: todo
 - [ ] T-014 · REQ-501,502,654 · SCR-05 · `generateRewrite` + `/lib/llm/verify.ts` (CoVe-lite, drop ungrounded) + Before/After UI (≥2 ChangeItems + score delta) · status: todo
 - [ ] T-015 · REQ-701 · — · Wrap every OpenAI/ElevenLabs/search call in try/catch → `DEGRADED`; nothing crashes the UI · status: todo

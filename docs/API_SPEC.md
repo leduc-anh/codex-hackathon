@@ -1,7 +1,7 @@
-# API_SPEC.md — SoPilot Server Actions
+# API_SPEC.md — SoPilot Typed Action Modules
 
 > **Authority order:** `contracts.ts` > `AGENTS.md` > `PRD.md` > `ARCHITECTURE.md` > this doc.
-> **Convention:** prefer Next.js **server actions** (`/app/actions.ts`); only use `/app/api/*` route handlers if a streaming HTTP endpoint is needed (interrogation/rewrite token streaming). All inputs/outputs use the Zod types from `contracts.ts` — validate at the boundary. No endpoint returns an un-typed object.
+> **Convention:** implement Vite-compatible typed client action modules in `/src/lib/actions.ts` and supporting files under `/src/lib/**`. All inputs/outputs use the Zod types from `contracts.ts` — validate at the boundary. No action returns an un-typed object.
 
 ---
 

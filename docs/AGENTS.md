@@ -26,8 +26,8 @@ intake (agent + tools) → draft → interrogation (avatar) → rewrite + before
 - Artifact in scope: **SoP only**. "Proposals", LoR, interview prep are out.
 
 ## 2. Locked technology stack [LOCKED]
-- **Frontend:** Next.js (App Router) + React + **TypeScript** + Tailwind CSS.
-- **Backend:** Next.js **API routes / server actions only**. No separate backend service.
+- **Frontend:** Vite + React + **TypeScript** + plain CSS for the MVP.
+- **Backend:** No separate backend service in the MVP. Use typed client-side action modules under `src/lib/**`; any external LLM/search calls still go through the single wrapper and must degrade safely.
 - **Persistence:** Supabase (Postgres) via its client **OR** in-memory/session state for the demo. Choose ONE and stick to it. (For a pure demo, in-session is acceptable and faster.)
 - **LLM:** one frontier model via API (Claude or GPT-4-class). All intelligence is prompt-engineered. **No training, no fine-tuning.**
 - **Search grounding:** one hosted web-search API (Exa / Tavily / Serper / Brave). **Not** a self-hosted vector DB.
@@ -83,12 +83,12 @@ Refuse these even if they seem helpful. Each is a known 24h time-sink or a footg
 
 ## 7. Code conventions & structure [LOCKED shape, flexible detail]
 ```
-/app            Next.js routes + UI (intake chat, draft, interrogation, before/after)
-/lib/agent      ReAct loop + tool dispatch
-/lib/tools      search_criteria.ts, score_fit.ts, log_feedback.ts
-/lib/llm        single LLM client wrapper (structured-output + Zod validate + repair)
-/lib/contracts  re-exports contracts.ts (single source of truth for types)
-/lib/memory     state object + rolling summary helpers
+/src            Vite React UI (intake chat, draft, interrogation, before/after)
+/src/lib/agent  ReAct loop + tool dispatch
+/src/lib/tools  search_criteria.ts, score_fit.ts, log_feedback.ts
+/src/lib/llm    single LLM client wrapper (structured-output + Zod validate + repair)
+/src/lib/contracts.ts re-exports contracts.ts (single source of truth for types)
+/src/lib/memory state object + rolling summary helpers
 ```
 - TypeScript strict mode on. No `any`. Functions that touch LLM output return validated, typed data.
 - Each tool is a pure-ish function matching its contract signature. Side effects (network, db) isolated and wrapped in try/catch with graceful fallback.
@@ -117,3 +117,4 @@ Run: `npm install && npm run dev`. Pre-warm the first LLM + search call before d
 
 ## 12. Decision Log
 - 2026-06-27 — Initialized contract. Locked: single SoP flow, Next.js+TS+Tailwind stack, 3-tool ReAct agent, code-computed `score_fit` (no LLM %), human-gated guideline learning (not federated), state+summary memory (no vector store in MVP). — Rationale: 24h / 1–2 devs; protect the demo and the anti-hallucination story.
+- 2026-06-27 — Unlocked stack from Next.js to Vite + React + TypeScript with plain CSS and no separate backend service. — Rationale: human approval; current repo is already Vite and the hackathon path favors fastest local iteration.

@@ -8,8 +8,8 @@
 ## 1. System context
 ```mermaid
 flowchart TB
-  U["Applicant (Minh)"] -->|chat / voice / text| FE["SoPilot Web App (Next.js)"]
-  FE --> API["Server Actions / API routes"]
+  U["Applicant (Minh)"] -->|chat / voice / text| FE["SoPilot Web App (Vite React)"]
+  FE --> API["Typed client action modules"]
   API --> AGENT["Intake Agent (ReAct loop)"]
   API --> LLM["LLM client wrapper"]
   AGENT --> LLM
@@ -28,30 +28,30 @@ Only one external dependency is on the demo critical path that we don't control 
 ## 2. Component responsibilities
 | Component | Path | Responsibility | Must NOT |
 |-----------|------|----------------|----------|
-| Web App (Stepper) | `/app` | Render 5 P0 screens as a single-page state machine; hold `AgentState`. | Add routing per screen, add a state lib. |
-| Server layer | `/app/**/actions.ts` or `/app/api` | Expose the actions in `API_SPEC.md`; orchestrate agent + tools. | Become a separate service. |
-| Intake Agent | `/lib/agent` | ReAct loop: emit `ReActStep`, dispatch tools, bounded by `MAX_AGENT_STEPS`. | Produce facts or scores itself. |
-| Tools | `/lib/tools` | `search_criteria.ts`, `score_fit.ts`, `log_feedback.ts` — match `contracts.ts` signatures. | Exceed three tools. |
-| LLM client | `/lib/llm` | One wrapper: structured-output request → Zod validate → repair-once → degrade. | Be called directly without validation. |
-| Memory | `/lib/memory` | `AgentState` read/write + rolling summarization. | Add vector memory. |
-| Contracts | `/lib/contracts` | Re-export `contracts.ts`. | Redefine shapes. |
+| Web App (Stepper) | `/src` | Render 5 P0 screens as a single-page state machine; hold `AgentState`. | Add routing per screen, add a state lib. |
+| Action layer | `/src/lib/actions.ts` | Expose the actions in `API_SPEC.md`; orchestrate agent + tools in typed client modules. | Become a separate service. |
+| Intake Agent | `/src/lib/agent` | ReAct loop: emit `ReActStep`, dispatch tools, bounded by `MAX_AGENT_STEPS`. | Produce facts or scores itself. |
+| Tools | `/src/lib/tools` | `search_criteria.ts`, `score_fit.ts`, `log_feedback.ts` — match `contracts.ts` signatures. | Exceed three tools. |
+| LLM client | `/src/lib/llm` | One wrapper: structured-output request → Zod validate → repair-once → degrade. | Be called directly without validation. |
+| Memory | `/src/lib/memory` | `AgentState` read/write + rolling summarization. | Add vector memory. |
+| Contracts | `/src/lib/contracts.ts` | Re-export `contracts.ts`. | Redefine shapes. |
 
 ## 3. Folder structure (authoritative)
 ```
-/app
-  page.tsx                 # Stepper host: switches on ST_* state
+/src
+  App.tsx                  # Stepper host: switches on ST_* state
   /components              # ChatIntake, ShortlistFit, DraftWorkspace, Interrogation, BeforeAfter
-  /actions.ts              # server actions (see API_SPEC.md)
-/lib
-  /agent/loop.ts           # ReAct loop + step dispatch
-  /agent/system.ts         # builds system prompt (base + injected guidelines)
-  /tools/search_criteria.ts
-  /tools/score_fit.ts      # deterministic; NO LLM
-  /tools/log_feedback.ts
-  /llm/client.ts           # callStructured(schema, prompt) -> validated T
-  /llm/verify.ts           # CoVe-lite pass
-  /memory/state.ts         # AgentState helpers + rolling summary
-  /contracts.ts            # SINGLE SOURCE OF TRUTH (copy of the locked file)
+  /lib
+    /actions.ts            # typed action modules (see API_SPEC.md)
+    /agent/loop.ts         # ReAct loop + step dispatch
+    /agent/system.ts       # builds system prompt (base + injected guidelines)
+    /tools/search_criteria.ts
+    /tools/score_fit.ts    # deterministic; NO LLM
+    /tools/log_feedback.ts
+    /llm/client.ts         # callStructured(schema, prompt) -> validated T
+    /llm/verify.ts         # CoVe-lite pass
+    /memory/state.ts       # AgentState helpers + rolling summary
+    /contracts.ts          # re-export docs/contracts.ts
 ```
 
 ## 4. Happy-path data flow (full P0 flow)
@@ -140,7 +140,7 @@ Implemented once in `/lib/llm/client.ts` as `callStructured(schema, prompt)`. No
 | Decision | Choice | Why | Rejected |
 |----------|--------|-----|----------|
 | App shape | Single-page Stepper | No routing overhead; demo never "dead-navigates" | Multi-route app |
-| Backend | Next.js server actions | One codebase, one dev moves fast | Separate API service |
+| Action layer | Vite client-side action modules | One codebase, one dev moves fast | Separate API service |
 | Fit scoring | Deterministic TS rubric | Honest, explainable, un-hallucinatable | LLM-generated % |
 | Grounding | Hosted search + citations | Buildable in minutes; sources kill hallucination | Self-hosted RAG/vector DB |
 | Learning | Mentor-gated guideline injection | Real "improves from feedback", human-safe | Federated learning / self-rewrite |
