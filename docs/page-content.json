@@ -19,8 +19,8 @@
       { "id": "intake",      "n": 1, "label": { "vi": "Hồ sơ",    "en": "INTAKE" } },
       { "id": "shortlist",   "n": 2, "label": { "vi": "Phù hợp",  "en": "SHORTLIST" } },
       { "id": "draft",       "n": 3, "label": { "vi": "Bản nháp", "en": "DRAFT" } },
-      { "id": "interrogate", "n": 4, "label": { "vi": "Chất vấn", "en": "INTERROGATE" } },
-      { "id": "reveal",      "n": 5, "label": { "vi": "Lột xác",  "en": "REVEAL" } }
+      { "id": "interrogate", "n": 4, "label": { "vi": "Đào sâu", "en": "COACH" } },
+      { "id": "reveal",      "n": 5, "label": { "vi": "Cải thiện", "en": "REFINE" } }
     ]
   },
 
@@ -31,19 +31,19 @@
     "messages": [
       { "role": "agent", "label": "SoPilot", "text": "Chào Minh! Cứ kể cho mình nghe về bạn theo cách tự nhiên nhất, không cần viết thật chỉn chu. Có thể là điểm số, câu lạc bộ, một dự án bạn từng làm, hay một trải nghiệm khiến bạn nhớ mãi. Tiếng Việt hay tiếng Anh đều được." },
       { "role": "user", "text": "mình học chuyên Lý, có giải nhì HSG tỉnh. mình làm 1 cái mạch cảm biến đo độ ẩm đất cho vườn rau của bà mình. tiếng anh mình hơi yếu phần viết." },
-      { "role": "agent", "label": "SoPilot", "text": "Tuyệt, “vườn rau của bà” là một chi tiết quý đấy, mình giữ lại nhé. I pulled the Berkeley ME criteria so we can check your fit honestly.", "sources": ["berkeley.edu/me", "usnews.edu"] },
+      { "role": "agent", "label": "SoPilot", "text": "Tuyệt, “vườn rau của bà” là một chi tiết rất đáng giữ. Mình cũng đã đối chiếu nhanh với tiêu chí Berkeley ME để đánh giá mức phù hợp cho công bằng.", "sources": ["berkeley.edu/me", "usnews.edu"] },
       { "role": "user", "text": "ok. mình cũng tham gia CLB robotics 2 năm, làm trưởng nhóm lập trình." },
       { "role": "agent", "label": "SoPilot", "text": "Đã ghi. Mình thấy hồ sơ bạn mạnh về kỹ thuật thực hành. Điểm cần làm rõ là “vì sao” đằng sau mỗi việc. Sẵn sàng xem mức độ phù hợp chưa?" }
     ],
     "profileCard": {
-      "heading": { "vi": "Hồ sơ đang dựng", "en": "Profile, building" },
+      "heading": { "vi": "Hồ sơ đang hoàn thiện", "en": "Profile in progress" },
       "name": "Minh Nguyễn",
       "sub": { "vi": "Lớp 12 · Hà Nội · ứng viên ngành kỹ thuật", "en": "Grade 12 · Hà Nội · Engineering applicant" },
       "facts": [
         { "state": "captured", "text": "Chuyên Lý · giải nhì HSG Lý cấp tỉnh" },
         { "state": "captured", "text": "Mạch cảm biến độ ẩm đất cho vườn rau của bà" },
         { "state": "captured", "text": "Trưởng nhóm lập trình, CLB Robotics (2 năm)" },
-        { "state": "gap", "text": "Viết tiếng Anh (essay framing)", "gap": "Cần thể hiện chiều sâu phản chiếu" },
+        { "state": "gap", "text": "Viết tiếng Anh (essay framing)", "gap": "Cần thể hiện chiều sâu tự nhìn lại" },
         { "state": "gap", "text": "Hoạt động cộng đồng ngoài CLB", "gap": "Chưa đủ dữ liệu, cần hỏi thêm" }
       ],
       "cta": { "vi": "Xem mức độ phù hợp", "en": "See your fit" }
@@ -52,7 +52,7 @@
 
   "scr02_shortlist": {
     "title":   { "vi": "Mức độ phù hợp của bạn", "en": "Your fit" },
-    "subtitle":{ "vi": "Đánh giá phù hợp thẳng thắn cho từng mục tiêu, và đúng việc cần sửa. Không có phần trăm giả, chỉ là bạn đang ở đâu và còn thiếu gì.", "en": "Honest fit per target, and exactly what to fix. No fake percentages, just where you stand and what's missing." },
+    "subtitle":{ "vi": "Đánh giá thẳng thắn cho từng mục tiêu, kèm đúng phần cần cải thiện. Không dùng phần trăm giả, chỉ cho bạn thấy hiện đang ở đâu và nên làm gì tiếp.", "en": "A candid fit check for each target, with the next improvement clearly named. No fake percentages, just where you stand and what to do next." },
     "gapLabel": { "vi": "Cần bổ sung", "en": "To close the gap" },
     "sourcePrefix": { "vi": "nguồn", "en": "source" },
     "targets": [
@@ -66,7 +66,7 @@
           { "met": false, "text": "Essay thể hiện “impact” rõ ràng" },
           { "met": false, "text": "Hoạt động cộng đồng / lãnh đạo rộng" }
         ],
-        "gap": "Câu chuyện của bạn cần cho thấy ai được lợi từ công việc bạn làm, không chỉ bạn xây cái gì. Đó chính là việc chất vấn sẽ làm rõ.",
+        "gap": "Câu chuyện cần cho thấy ai được lợi từ công việc bạn làm, không chỉ bạn đã xây được gì. Phần đào sâu tiếp theo sẽ giúp làm rõ điều đó.",
         "sources": ["berkeley.edu/admissions", "usnews.edu"]
       },
       {
@@ -101,7 +101,7 @@
 
   "scr03_draft": {
     "title":   { "vi": "Bản nháp đầu tiên", "en": "Your first draft" },
-    "subtitle":{ "vi": "Cứ viết ra đã. Dán bản nháp, hoặc để SoPilot dựng khung từ hồ sơ của bạn. Bạn sẽ biến nó thành của mình ở bước sau.", "en": "Get something down. Paste a draft, or let SoPilot scaffold one from your profile. You'll make it yours next." },
+    "subtitle":{ "vi": "Bắt đầu bằng một bản nháp đơn giản. Bạn có thể dán bài đang có, hoặc để SoPilot dựng khung từ hồ sơ. Ở bước sau, mình sẽ giúp bạn làm nó rõ và có giọng riêng hơn.", "en": "Start with a simple draft. Paste what you have, or let SoPilot scaffold from your profile. Next, we will make it clearer and more genuinely yours." },
     "writingForLabel": { "vi": "Đang viết cho", "en": "Writing for" },
     "writingForValue": "UC Berkeley · Mechanical Engineering",
     "editorLabel": { "vi": "Statement of Purpose · bản nháp", "en": "Statement of Purpose · draft" },
@@ -109,7 +109,7 @@
     "editorPlaceholder": { "vi": "Dán bản nháp của bạn vào đây, hoặc nhấn ‘Viết nháp giúp tôi’ để bắt đầu…", "en": "Paste your draft here, or let SoPilot scaffold one from your profile." },
     "sampleDraft": "I have always been passionate about engineering. I built a sensor to measure soil moisture. I am hardworking and dedicated. I want to study at your university to achieve my dreams.",
     "wordCountLabel": { "vi": "từ", "en": "words" },
-    "cta": { "vi": "Bắt đầu chất vấn", "en": "Start interrogation" }
+    "cta": { "vi": "Bắt đầu đào sâu", "en": "Start coaching" }
   },
 
   "scr04_interrogation": {
@@ -119,68 +119,68 @@
       "awaiting": { "vi": "Đang chờ bạn", "en": "Awaiting you" }
     },
     "ttsToggle": { "on": "🔊 TTS BẬT · VOICE ON", "off": "🔇 TTS TẮT · TEXT-ONLY" },
-    "degradedNote": { "vi": "Giọng nói tắt. Cô Linh vẫn chất vấn bằng văn bản.", "en": "Voice off. She still asks, in text." },
-    "turnLabel": { "vi": "Câu hỏi · Turn", "en": "Turn" },
+    "degradedNote": { "vi": "Giọng nói đang tắt. Cô Linh vẫn trao đổi bằng văn bản.", "en": "Voice is off. Linh will continue in text." },
+    "turnLabel": { "vi": "Câu hỏi", "en": "Turn" },
     "answerPlaceholder": { "vi": "Trả lời thật lòng, kể một khoảnh khắc thay vì tóm tắt.", "en": "Answer honestly: tell the moment, don't summarize." },
-    "reassurance": { "vi": "Không có câu trả lời sai. Cô ấy đẩy bạn vì tin bạn làm được.", "en": "No wrong answers. She pushes because she believes you can." },
+    "reassurance": { "vi": "Không có câu trả lời sai. Cô Linh hỏi kỹ hơn để giúp câu chuyện của bạn rõ và thật hơn.", "en": "No wrong answers. Linh asks carefully so your story becomes clearer and more real." },
     "submitButton": { "vi": "Trả lời", "en": "Answer" },
     "finishButton": { "vi": "Hoàn tất", "en": "Finish" },
     "turns": [
       {
         "targetSentence": "I have always been passionate about engineering.",
-        "promptLabel": { "vi": "Bảo vệ câu này", "en": "Defend this line" },
+        "promptLabel": { "vi": "Làm rõ câu này", "en": "Clarify this line" },
         "question": {
-          "vi": "“Đam mê” chẳng nói lên điều gì. Kỹ thuật thôi là môn học từ khi nào trở thành của riêng bạn?",
-          "en": "'Passionate' tells me nothing. When did engineering stop being a school subject and become yours? Give me the moment."
+          "vi": "“Đam mê” là một ý tốt, nhưng còn khá chung. Có khoảnh khắc nào khiến kỹ thuật không chỉ là môn học, mà thành điều bạn thật sự muốn theo đuổi?",
+          "en": "'Passionate' is a good start, but it is still broad. When did engineering stop being just a subject and become something you wanted to pursue?"
         }
       },
       {
         "targetSentence": "I built a sensor to measure soil moisture.",
         "promptLabel": { "vi": "Đào sâu", "en": "Dig in" },
         "question": {
-          "vi": "Bạn làm nó cho ai? Vì điểm số, hay vì một con người? Ngày hôm đó điều gì khiến nó quan trọng?",
-          "en": "Who was it for: a grade, or a person? What happened that day that made it matter?"
+          "vi": "Bạn làm mạch đó cho ai? Điều gì trong ngày hôm đó khiến nó quan trọng hơn một bài tập kỹ thuật?",
+          "en": "Who was the sensor for? What made that day matter beyond a technical assignment?"
         }
       },
       {
         "targetSentence": "I am hardworking and dedicated.",
-        "promptLabel": { "vi": "Chứng minh", "en": "Prove it" },
+        "promptLabel": { "vi": "Cụ thể hóa", "en": "Make it concrete" },
         "question": {
-          "vi": "Ai cũng nói thế. Kể một lần sự cố gắng của bạn phải trả giá bằng điều gì đó.",
-          "en": "Every applicant says this. Show me one time your effort cost you something real."
+          "vi": "“Chăm chỉ” sẽ thuyết phục hơn nếu có hành động cụ thể. Kể một lần bạn phải cố hơn bình thường để hoàn thành việc mình đã nhận.",
+          "en": "'Hardworking' is stronger when it is shown through action. Tell me about one time you had to push past what was comfortable to finish something you had committed to."
         }
       },
       {
         "targetSentence": "I want to study at your university to achieve my dreams.",
         "promptLabel": { "vi": "Cụ thể hơn", "en": "Get specific" },
         "question": {
-          "vi": "Ước mơ nào, cụ thể? Và vì sao bạn không thể chạm tới nó ở bất cứ nơi nào khác?",
-          "en": "Which dream, specifically? And why can't you reach it anywhere but here?"
+          "vi": "Ước mơ đó cụ thể là gì? Và Berkeley sẽ giúp bạn tiến gần hơn tới nó theo cách nào?",
+          "en": "What is that dream, specifically? And how would Berkeley help you move toward it?"
         }
       }
     ],
     "complete": {
-      "eyebrow": { "vi": "Chất vấn xong", "en": "Interrogation complete" },
+      "eyebrow": { "vi": "Đã đào sâu xong", "en": "Coaching complete" },
       "title": { "vi": "Bạn vừa kể ra một câu chuyện thật", "en": "You just told a real story" },
-      "body": { "vi": "Bốn câu hỏi khó, bốn câu trả lời thật. Trước đây bạn chưa có câu chuyện; giờ bạn đã bảo vệ được một câu chuyện.", "en": "Four hard questions, four real answers. You didn't have a story before. You defended one, and now you'll see what it became." },
-      "cta": { "vi": "Xem sự lột xác", "en": "See the transformation" }
+      "body": { "vi": "Bốn câu hỏi kỹ, bốn câu trả lời thật. Từ một bản nháp còn chung, bạn đã có chất liệu cụ thể hơn để viết một câu chuyện có sức nặng.", "en": "Four careful questions, four real answers. From a broad draft, you now have more specific material for a stronger story." },
+      "cta": { "vi": "Xem bản cải thiện", "en": "See the refined draft" }
     }
   },
 
   "scr05_reveal": {
     "generating": {
-      "title": { "vi": "Đang dệt câu trả lời của bạn vào bài luận…", "en": "Weaving your answers into the essay…" },
-      "body": { "vi": "Đưa câu trả lời của bạn trở lại bài luận. Không bịa thêm gì, chỉ những gì bạn đã nói.", "en": "Weaving your answers back into the essay. Nothing invented, only what you said." }
+      "title": { "vi": "Đang đưa câu trả lời của bạn vào bài luận…", "en": "Bringing your answers into the essay…" },
+      "body": { "vi": "SoPilot chỉ dùng những gì bạn đã chia sẻ, không bịa thêm chi tiết mới.", "en": "SoPilot uses only what you shared, without inventing new details." }
     },
     "banner": {
-      "eyebrow": { "vi": "Sự lột xác", "en": "The transformation" },
-      "title": { "vi": "Mọi câu mới ở đây là của bạn", "en": "Every new sentence here is yours" },
-      "body": { "vi": "Mọi câu mới ở đây là của bạn, lấy từ cách bạn trả lời, không phải do máy viết hộ.", "en": "Every new sentence here is yours, pulled from how you answered, not written for you." }
+      "eyebrow": { "vi": "Bản cải thiện", "en": "Refined draft" },
+      "title": { "vi": "Bản mới vẫn giữ giọng của bạn", "en": "The new version still sounds like you" },
+      "body": { "vi": "Những phần được thêm vào đều lấy từ câu trả lời của bạn, để bài luận rõ hơn mà không mất tính cá nhân.", "en": "The added parts come from your answers, making the essay clearer without losing your voice." }
     },
     "framing": {
       "label": { "vi": "Cách kể chuyện", "en": "Framing" },
-      "from": { "vi": "Liệt kê", "en": "list-y" },
-      "to": { "vi": "Phản chiếu", "en": "reflective" }
+      "from": { "vi": "Còn chung", "en": "broad" },
+      "to": { "vi": "Có câu chuyện", "en": "story-led" }
     },
     "beforeLabel": { "vi": "Trước", "en": "Before" },
     "afterLabel": { "vi": "Sau", "en": "After" },
@@ -192,10 +192,10 @@
       { "quote": "thức đến 2 giờ sáng, làm lại bốn lần", "why": "Chứng minh sự bền bỉ bằng hành động, không phải tính từ. Effort shown, not claimed.", "from": { "vi": "câu trả lời 3 của bạn", "en": "your answer 3" } },
       { "quote": "giúp người nông dân quê tôi", "why": "Biến “ước mơ” mơ hồ thành một mục đích cụ thể, hướng về cộng đồng. A specific 'why here'.", "from": { "vi": "câu trả lời 4 của bạn", "en": "your answer 4" } }
     ],
-    "whyHeading": { "vi": "Vì sao mạnh hơn", "en": "Why each change is stronger" },
+    "whyHeading": { "vi": "Vì sao bản mới tốt hơn", "en": "Why the new version is stronger" },
     "actions": {
       "export": { "vi": "Xuất bản luận", "en": "Export SoP" },
-      "pushFurther": { "vi": "Chất vấn thêm", "en": "Push further" }
+      "pushFurther": { "vi": "Đào sâu thêm", "en": "Go deeper" }
     }
   },
 
@@ -203,13 +203,14 @@
     "comment": "Copy for every screen's required states (PRD §10). Errors don't apologize; failure gives direction.",
     "loading": { "vi": "Đang xử lý…", "en": "Working…", "note": "Always show streaming/token progress, never a bare spinner." },
     "degraded": {
-      "tts": { "vi": "Giọng nói tắt. Cô Linh vẫn chất vấn bằng văn bản.", "en": "Voice off. She still asks, in text." },
-      "search": { "vi": "Chưa lấy được nguồn trực tiếp. Đánh giá dựa trên tiêu chí đã biết, hãy kiểm tra lại link.", "en": "Couldn't fetch live sources. Judging on known criteria; verify the links yourself." }
+      "tts": { "vi": "Giọng nói đang tắt. Cô Linh vẫn trao đổi bằng văn bản.", "en": "Voice is off. Linh will continue in text." },
+      "search": { "vi": "Chưa lấy được nguồn trực tiếp. Đây là bản đánh giá tạm theo tiêu chí đã biết; hãy kiểm tra lại link nguồn.", "en": "Live sources are not available yet. This is a provisional fit check based on known criteria; please verify the source links." }
     },
     "empty": {
-      "intake": { "vi": "Bắt đầu bằng một dòng về bạn. Bất cứ điều gì cũng được.", "en": "Start with one line about you. Anything works." }
+      "intake": { "vi": "Bắt đầu bằng một dòng về bạn. Bất cứ điều gì cũng được.", "en": "Start with one line about you. Anything works." },
+      "answer": { "vi": "Hãy viết vài dòng trước khi đi tiếp. Một khoảnh khắc cụ thể là đủ.", "en": "Write a few lines before moving on. One specific moment is enough." }
     },
-    "insufficientData": { "vi": "Chưa đủ dữ liệu để xếp hạng. Hãy kể thêm để mình đánh giá đúng.", "en": "Not enough to place a band yet. Tell me more so I can judge fairly." },
+    "insufficientData": { "vi": "Chưa đủ dữ liệu để đánh giá. Hãy kể thêm để mình nhận xét công bằng hơn.", "en": "Not enough data to evaluate yet. Tell me more so I can judge fairly." },
     "error": { "vi": "Không gửi được. Kiểm tra kết nối rồi thử lại.", "en": "Couldn't send. Check your connection and try again." }
   }
 }

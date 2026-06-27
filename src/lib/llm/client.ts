@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import { fail, type ActionResult } from '../actions.ts'
+import { fail, type ActionResult } from '../result.ts'
 
 export type StructuredLlmRequest = {
   system?: string

@@ -81,7 +81,7 @@ function reducer(state: State, action: Action): State {
       if (!text) {
         return {
           ...state,
-          error: bilingual(content.states.error),
+          error: bilingual(content.states.empty.intake),
         }
       }
       return {
@@ -120,7 +120,7 @@ function reducer(state: State, action: Action): State {
       return { ...state, answerInput: action.value, error: '' }
     case 'submitAnswer': {
       if (!state.answerInput.trim()) {
-        return { ...state, error: bilingual(content.states.insufficientData) }
+        return { ...state, error: bilingual(content.states.empty.answer) }
       }
       return {
         ...state,
@@ -209,8 +209,8 @@ function FitBand({ band }: { band: string }) {
     key === 'strongMatch'
       ? { vi: 'PHÙ HỢP TỐT', en: 'STRONG MATCH' }
       : key === 'competitive'
-        ? { vi: 'CẠNH TRANH', en: 'COMPETITIVE' }
-        : { vi: 'THÁCH THỨC', en: 'REACH' }
+        ? { vi: 'CÓ CẠNH TRANH', en: 'COMPETITIVE' }
+        : { vi: 'MỤC TIÊU CAO', en: 'REACH' }
 
   return (
     <span className={`fit-band fit-${key}`} title={data?.name}>
@@ -259,7 +259,7 @@ function TypingDots() {
 
 function Stepper({ screen, dispatch }: { screen: Screen; dispatch: React.Dispatch<Action> }) {
   return (
-    <div className="stepper" aria-label="Hành trang">
+    <div className="stepper" aria-label="Hành trình làm hồ sơ">
       <div className="stepper-track">
         <span className="stepper-fill" style={{ width: `${(screen / 4) * 88}%` }} />
       </div>
@@ -393,7 +393,7 @@ function IntakeScreen({ state, dispatch }: { state: State; dispatch: React.Dispa
               placeholder={content.scr01_intake.inputPlaceholder.vi}
               value={state.intakeInput}
             />
-            <button aria-label="Send" className="send-button" type="submit">
+            <button aria-label="Gửi thông tin" className="send-button" type="submit">
               ↑
             </button>
           </form>
